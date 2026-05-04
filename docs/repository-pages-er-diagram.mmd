@@ -1,0 +1,28 @@
+%%{init: {"theme":"base","themeVariables":{
+  "primaryColor":"#dce8f6",
+  "primaryTextColor":"#1f2a44",
+  "primaryBorderColor":"#1f2a44",
+  "lineColor":"#1f2a44",
+  "tertiaryColor":"#dce8f6",
+  "fontSize":"14px"
+}}}%%
+erDiagram
+    repository_nodes {
+      TEXT id PK
+      TEXT parent_id FK
+      TEXT name
+      VARCHAR type
+      INT sort_order
+      JSONB meta
+      JSONB blocks
+      TEXT document_type
+      TEXT doi
+      TEXT xml_path
+      VARCHAR document_status
+      TIMESTAMP review_requested_at
+      TIMESTAMP verified_at
+      TIMESTAMP created_at
+      TIMESTAMP updated_at
+    }
+
+    repository_nodes ||--o{ repository_nodes : "parent-child tree"

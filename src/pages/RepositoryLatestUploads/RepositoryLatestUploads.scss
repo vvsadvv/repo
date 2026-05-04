@@ -1,0 +1,61 @@
+﻿.repository-latest-uploads {
+  padding: 24px 0 40px;
+
+  &__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  &__lead {
+    color: #3d4f61;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  &__more-button {
+    background: #fff;
+    font: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid #0c5da8;
+    color: #0c5da8;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  &__more-button:hover {
+    background: #0c5da8;
+    color: #fff;
+  }
+
+  &__more-button:disabled {
+    border-color: #b8c8d8;
+    color: #7f94a9;
+    background: #f4f8fc;
+    cursor: not-allowed;
+  }
+
+  &__state {
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: #f2f7fd;
+    color: #243b53;
+
+    &--error {
+      background: #ffe9e9;
+      color: #8a1f1f;
+    }
+  }
+}

@@ -1,0 +1,47 @@
+﻿.repository-search {
+  padding: 24px 0 40px;
+
+  &__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  h1 {
+    font-size: 32px;
+    color: #11324d;
+  }
+
+  &__lead {
+    color: #3d4f61;
+  }
+
+  &__input {
+    width: 100%;
+    border: 1px solid #c8d5e3;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 15px;
+
+    &:focus {
+      outline: none;
+      border-color: #2b77c7;
+      box-shadow: 0 0 0 3px rgba(43, 119, 199, 0.18);
+    }
+  }
+
+  &__state {
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: #f2f7fd;
+    color: #243b53;
+
+    &--error {
+      background: #ffe9e9;
+      color: #8a1f1f;
+    }
+  }
+}

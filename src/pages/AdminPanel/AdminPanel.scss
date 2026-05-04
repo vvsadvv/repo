@@ -1,0 +1,278 @@
+.admin-panel {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  h1 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  &.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 18px;
+    color: #666;
+  }
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 20px;
+
+  .tab {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    transition: all 0.3s ease;
+
+    &:hover {
+      color: #333;
+      background-color: #f5f5f5;
+    }
+
+    &.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+      font-weight: bold;
+    }
+  }
+}
+
+.tab-content {
+  min-height: 400px;
+}
+
+.users-table {
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #333;
+    }
+
+    tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: #007bff;
+      }
+    }
+  }
+}
+
+.pending-users {
+  .users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+
+  .user-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ffc107;
+
+    h3 {
+      margin: 0 0 10px 0;
+      color: #333;
+    }
+
+    p {
+      margin: 5px 0;
+      color: #666;
+
+      strong {
+        color: #333;
+      }
+    }
+
+    .user-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+  }
+}
+
+.btn-approve, .btn-reject, .btn-delete {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-approve {
+  background-color: #28a745;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #218838;
+  }
+}
+
+.btn-reject {
+  background-color: #dc3545;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #c82333;
+  }
+}
+
+.btn-delete {
+  background-color: #6c757d;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: #545b62;
+  }
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-active {
+  background-color: #d1edff;
+  color: #004085;
+}
+
+.status-blocked {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.admin-notification {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+
+  &--success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+
+  &--error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+}
+
+.admin-panel__revision-comment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: #333;
+  font-weight: 600;
+}
+
+.admin-panel__revision-comment-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px 12px;
+  border: 1px solid #d0d7e2;
+  border-radius: 8px;
+  resize: vertical;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.admin-panel__revision-comment-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 10px;
+  }
+
+  .tabs {
+    flex-direction: column;
+    
+    .tab {
+      text-align: left;
+    }
+  }
+
+  .users-table {
+    table {
+      font-size: 14px;
+      
+      th, td {
+        padding: 8px 4px;
+      }
+    }
+  }
+
+  .pending-users .users-grid {
+    grid-template-columns: 1fr;
+  }
+}

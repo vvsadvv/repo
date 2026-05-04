@@ -1,0 +1,60 @@
+# Repository ER Diagram
+
+```mermaid
+%%{init: {"theme":"base","themeVariables":{
+  "primaryColor":"#dce8f6",
+  "primaryTextColor":"#1f2a44",
+  "primaryBorderColor":"#1f2a44",
+  "lineColor":"#1f2a44",
+  "tertiaryColor":"#dce8f6",
+  "fontSize":"14px"
+}}}%%
+erDiagram
+    RepositoryUsers {
+      INT id PK
+      VARCHAR name UK
+      VARCHAR email UK
+      VARCHAR full_name
+      VARCHAR organization
+      VARCHAR position
+      VARCHAR password
+      TIMESTAMP password_changed_at
+      VARCHAR role
+      VARCHAR status
+      INT approved_by FK
+      TIMESTAMP approved_at
+      TIMESTAMP created_at
+      TIMESTAMP updated_at
+    }
+
+    RepositoryPasswordResetTokens {
+      INT id PK
+      INT repository_user_id FK
+      VARCHAR token UK
+      TIMESTAMP expires_at
+      BOOLEAN used
+      TIMESTAMP created_at
+    }
+
+    repository_nodes {
+      TEXT id PK
+      TEXT parent_id FK
+      TEXT name
+      VARCHAR type
+      INT sort_order
+      JSONB meta
+      JSONB blocks
+      TEXT document_type
+      TEXT doi
+      TEXT xml_path
+      VARCHAR document_status
+      TIMESTAMP review_requested_at
+      TIMESTAMP verified_at
+      TIMESTAMP created_at
+      TIMESTAMP updated_at
+    }
+
+    RepositoryUsers ||--o{ RepositoryPasswordResetTokens : "has"
+    RepositoryUsers ||--o{ RepositoryUsers : "approves (self FK)"
+    repository_nodes ||--o{ repository_nodes : "parent-child tree"
+```

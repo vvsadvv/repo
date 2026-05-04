@@ -1,0 +1,103 @@
+import cors from 'cors';
+import dotenv from 'dotenv';
+import express from 'express';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import repositoryRoutes from './routes/repositoryRoutes.js';
+import repositoryAuthRoutes from './routes/repositoryAuthRoutes.js';
+import repositoryAdminRoutes from './routes/repositoryAdminRoutes.js';
+import repositoryReferenceRoutes from './routes/repositoryReferenceRoutes.js';
+import { initializeAuthDatabase } from './models/authDatabase.js';
+import { initializeRepositoryDatabase } from './models/repositoryDatabase.js';
+import { repositoryService } from './services/repositoryService.js';
+import { getEmailService } from './services/emailService.js';
+
+dotenv.config();
+
+const app = express();
+const PORT = Number(process.env.PORT || 3005);
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDir = path.dirname(currentFilePath);
+const isDev = process.env.NODE_ENV !== 'production';
+const uploadsDir = process.env.REPOSITORY_UPLOADS_DIR
+  ? path.resolve(process.env.REPOSITORY_UPLOADS_DIR)
+  : path.join(currentDir, 'uploads');
+const repositoryXmlDir = process.env.REPOSITORY_XML_DIR
+  ? path.resolve(process.env.REPOSITORY_XML_DIR)
+  : path.join(uploadsDir, 'repository', 'xml');
+const configuredOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: isDev ? ['http://localhost:5174'] : configuredOrigins.length > 0 ? configuredOrigins : false,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  })
+);
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use('/uploads/repository/xml', express.static(repositoryXmlDir));
+app.use('/uploads', express.static(uploadsDir));
+
+app.use('/api/repository-auth', repositoryAuthRoutes);
+app.use('/api/repository-admin', repositoryAdminRoutes);
+app.use('/api/repository-reference', repositoryReferenceRoutes);
+app.use('/api', repositoryRoutes);
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    env: process.env.NODE_ENV || 'development',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.use('*', (req, res) => {
+  res.status(404).json({ message: 'Route not found' });
+});
+
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    message: 'Internal Server Error',
+    details: isDev ? err.message : undefined,
+  });
+});
+
+const server = app.listen(PORT, () => {
+  console.log(`Repo backend started: http://localhost:${PORT}`);
+});
+
+async function startServer() {
+  try {
+    await initializeAuthDatabase();
+    await initializeRepositoryDatabase();
+    await repositoryService.migrateJsonRepositoryIfNeeded();
+
+    try {
+      await getEmailService();
+      console.log('Repo email service is active');
+    } catch (error) {
+      console.warn('Repo email service unavailable at startup, will retry on demand:', error.message);
+    }
+  } catch (error) {
+    console.error('Critical startup error:', error);
+    process.exit(1);
+  }
+}
+
+function shutdown(signal) {
+  console.log(`\n${signal} received. Shutting down Repo backend...`);
+  server.close(() => process.exit(0));
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+
+void startServer();

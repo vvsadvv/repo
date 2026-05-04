@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="ФИЦ ЕГС РАН">
+  <rect width="32" height="32" rx="3" fill="#224d85" />
+  <circle cx="16" cy="16" r="9.4" fill="none" stroke="#ffffff" stroke-width="1.6" />
+  <path d="M2 16h10.4l2.2-9.1 3.5 18.2 2.1-9h9.8" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M16 2.5v5.3M16 24.2v5.3" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+</svg>

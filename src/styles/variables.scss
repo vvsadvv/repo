@@ -1,0 +1,41 @@
+// Colors
+$white-color: #fff;
+$black-color: #000;
+$main-color: #29518C;
+$second-color: #888;
+$light-gray: #f1f1f1;
+$shadow-black: rgba(0, 0, 0, 0.5);
+$shadow-white: rgba(1, 1, 1, 0.8);
+$link-inactive: rgba(0, 0, 0, 0);
+$link-active: rgba(0, 0, 0, 1);
+$link-inactive-white: rgba(255, 255, 255, 0);
+$link-active-white: rgba(255, 255, 255, 1);
+$placeholder-main: rgba(41, 81, 140, 0.5);
+$marker-color: #39c149;
+$error-color: rgb(255, 71, 71);
+
+// Font-size
+$font-size-xxs: 12px;
+$font-size-xs: 16px;
+$font-size-s: 24px;
+$font-size-ml: 28px;
+$font-size-m: 36px;
+$font-size-l: 48px;
+
+// Border-radius
+$radius-s: 10px;
+$radius-m: 20px;
+
+// Shadows
+$box-shadow-main: 8px 8px 6px $shadow-black;
+$text-shadow-main: 4px 4px 6px $shadow-white;
+
+// Font-weight
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Transition
+$transition-fast: 0.15s;
+$transition-medium: 0.3s;
+$transition-slow: 0.5s;

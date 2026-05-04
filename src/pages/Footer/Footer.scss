@@ -1,0 +1,103 @@
+@use '@styles/variables.scss';
+
+.footer {
+  margin-top: auto;
+
+  &__container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 18px;
+    padding: 30px 29px 34px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(241, 245, 250, 0.98) 100%);
+    border-top: 4px solid variables.$main-color;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  &__headline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 6px;
+    text-align: center;
+  }
+
+  &__title {
+    color: variables.$main-color;
+    font-size: variables.$font-size-xs;
+    font-weight: variables.$font-weight-bold;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  &__subtitle {
+    max-width: 760px;
+    color: #4b617d;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 8px 6px;
+    max-width: 1100px;
+  }
+
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #284867;
+    font-size: variables.$font-size-xs;
+    text-decoration: none;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition:
+      color variables.$transition-medium ease,
+      border-color variables.$transition-medium ease;
+
+    &:hover {
+      color: variables.$main-color;
+      border-color: rgba(41, 81, 140, 0.4);
+    }
+
+    &:not(:last-child) {
+      &::after {
+        content: '|';
+        margin-left: 6px;
+        color: rgba(75, 97, 125, 0.45);
+      }
+    }
+  }
+
+  &__copyright {
+    color: #54687f;
+    font-size: 14px;
+    font-weight: variables.$font-weight-medium;
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .footer {
+    &__container {
+      padding: 24px 18px 28px;
+      row-gap: 16px;
+    }
+
+    &__title,
+    &__link {
+      font-size: variables.$font-size-xxs;
+    }
+
+    &__subtitle,
+    &__copyright {
+      font-size: 12px;
+    }
+  }
+}

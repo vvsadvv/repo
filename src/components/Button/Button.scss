@@ -1,0 +1,13 @@
+@use '@styles/variables.scss';
+
+.button {
+    padding: 10px 27px;
+    border-radius: variables.$radius-s;
+    font-size: variables.$font-size-xs;
+    cursor: pointer;
+    transition: variables.$transition-fast transform;
+
+    &:active {
+        transform: scale(0.95);
+    }
+}

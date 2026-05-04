@@ -1,0 +1,224 @@
+@use '@styles/mixins.scss';
+
+.login {
+  &__container {
+    @include mixins.auth-container(10vh, 30%, 344px);
+    
+    // Дополнительные стили для контейнера
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &__title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__form-input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    
+    &:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
+  }
+
+  &__form-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  &__form-hint {
+    font-size: 0.875rem;
+    color: #666;
+    margin-top: 0.5rem;
+    line-height: 1.4;
+  }
+
+  &__server-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  &__success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  &__success-actions {
+    margin-top: 1rem;
+  }
+
+  &__lockout-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.5;
+
+    strong {
+      color: #664d03;
+      font-size: 1.1rem;
+    }
+  }
+
+  &__lockout-icon {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__attempts-warning {
+    background-color: #e7f3ff;
+    border: 1px solid #b8daff;
+    color: #004085;
+    padding: 0.5rem 0.75rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+  }
+
+  &__loading {
+    color: #666;
+    font-size: 1rem;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  &__password-limit-info {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #6c757d;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  &__links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  &__link {
+    color: #007bff;
+    text-decoration: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: inherit;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+    
+    // Специфичный стиль для кнопки "Забыли пароль?"
+    &--forgot {
+      color: #6c757d;
+      font-size: 0.9rem;
+      
+      &:hover {
+        color: #0056b3;
+      }
+    }
+  }
+
+  &__buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  
+  
+  code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    color: #dc2626;
+  }
+}
+
+// Адаптивность
+@media (max-width: 768px) {
+  .login {
+    &__container {
+      @include mixins.auth-container(5vh, 5%, 344px);
+      padding: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .login {
+    &__container {
+      @include mixins.auth-container(2vh, 2%, 320px);
+      padding: 1rem;
+    }
+    
+    &__title {
+      font-size: 1.25rem;
+    }
+  }
+}

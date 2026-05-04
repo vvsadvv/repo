@@ -1,0 +1,125 @@
+.repository-instruction {
+  padding: 28px 20px 48px;
+  background:
+    radial-gradient(circle at top left, rgba(20, 93, 160, 0.12), transparent 32%),
+    linear-gradient(180deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.repository-instruction__container {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.repository-instruction__hero,
+.repository-instruction__card {
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 22px;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
+}
+
+.repository-instruction__hero {
+  padding: 26px;
+}
+
+.repository-instruction__hero h1 {
+  margin: 0 0 10px;
+  color: #16324f;
+}
+
+.repository-instruction__hero p {
+  margin: 0;
+  color: #425466;
+  line-height: 1.65;
+}
+
+.repository-instruction__card {
+  padding: 22px;
+}
+
+.repository-instruction__card h2 {
+  margin: 0 0 14px;
+  color: #16324f;
+}
+
+.repository-instruction__table {
+  border: 1px solid #d8e4f0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.repository-instruction__hint {
+  margin: 12px 0 0;
+  color: #35506d;
+  line-height: 1.6;
+}
+
+.repository-instruction__row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) 1fr;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px solid #e2ebf4;
+  color: #35506d;
+}
+
+.repository-instruction__row:first-child {
+  border-top: 0;
+}
+
+.repository-instruction__row--head {
+  background: #f3f8ff;
+  color: #17324d;
+  font-weight: 700;
+}
+
+.repository-instruction__list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #35506d;
+  line-height: 1.6;
+}
+
+.repository-instruction__list--ordered {
+  padding-left: 22px;
+}
+
+.repository-instruction__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.repository-instruction__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #145da0;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.repository-instruction__button--ghost {
+  background: #e2ecf7;
+  color: #17324d;
+}
+
+@media (max-width: 860px) {
+  .repository-instruction {
+    padding: 20px 12px 34px;
+  }
+
+  .repository-instruction__row {
+    grid-template-columns: 1fr;
+  }
+}

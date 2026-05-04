@@ -1,0 +1,146 @@
+@use '@styles/mixins.scss';
+
+.reg {
+    &__container {
+        @include mixins.auth-container(5vh, 45%, 75vh);
+    }
+}
+.reg__password-mismatch-top {
+  color: #d32f2f;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  margin: 8px 0 16px;
+}
+
+.reg__password-match {
+  color: #4caf50;
+  font-size: 14px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.reg__form-error {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.reg__server-error {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.reg__lockout-warning {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+  line-height: 1.5;
+
+  strong {
+    color: #664d03;
+    font-size: 1.1rem;
+  }
+}
+
+.reg__lockout-icon {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.reg__attempts-warning {
+  background-color: #e7f3ff;
+  border: 1px solid #b8daff;
+  color: #004085;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.reg__password-requirements {
+  margin: 12px 0;
+  font-size: 13px;
+  color: #555;
+
+  ul {
+    margin: 8px 0;
+    padding-left: 20px;
+    list-style: none;
+
+    li {
+      position: relative;
+      padding-left: 8px;
+
+      &::before {
+        content: '✓';
+        color: #4caf50;
+        position: absolute;
+        left: -16px;
+      }
+    }
+  }
+}
+
+.reg__organization,
+.reg__organization-request-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reg__organization {
+  width: 70%;
+  align-self: center;
+}
+
+.reg__organization .reg__form-input,
+.reg__organization-request-fields .reg__form-input {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.reg__organization-request-btn {
+  border: 1px solid #0c5da8;
+  border-radius: 10px;
+  background: #fff;
+  color: #0c5da8;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    background: #0c5da8;
+    color: #fff;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@media (max-width: 768px) {
+  .reg__organization {
+    width: 100%;
+  }
+}

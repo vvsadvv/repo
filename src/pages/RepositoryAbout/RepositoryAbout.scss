@@ -1,0 +1,33 @@
+﻿.repository-about {
+  padding: 24px 0 40px;
+
+  &__container {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    color: #1c2f42;
+    line-height: 1.55;
+  }
+
+  h1 {
+    font-size: 32px;
+    color: #11324d;
+    margin-bottom: 4px;
+  }
+
+  h2 {
+    margin-top: 12px;
+    font-size: 24px;
+    color: #123d63;
+  }
+
+  ul {
+    margin-left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}

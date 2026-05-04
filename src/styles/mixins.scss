@@ -1,0 +1,13 @@
+@mixin auth-container($margin-vertical, $width, $min-height) {
+    margin-top: $margin-vertical;
+    margin-bottom: $margin-vertical;
+    width: $width;
+    min-height: $min-height;
+    height: auto;
+}
+
+@mixin button($border-color, $background-color, $color) {
+    border: 1px solid $border-color;
+    background-color: $background-color;
+    color: $color;
+}
