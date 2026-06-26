@@ -9,6 +9,7 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
+/* Делает: Рендерит React-компонент Button и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 function Button({ aim, content, form, type = 'button', disabled, onClick}: ButtonProps) {
   return (
     <button 

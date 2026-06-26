@@ -5,16 +5,20 @@ const MAX_TIMEOUT_SECONDS = 30 * 60;
 const ONE_HOUR_MS = 60 * 60 * 1000;
 
 const rateLimitStore = new Map();
+const requestThrottleStore = new Map();
 
+/* Делает: Собирает ключ store. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
 function buildStoreKey(scope, identity) {
   return `${scope}:${identity}`;
 }
 
+/* Делает: Выполняет calculate lockout seconds. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
 function calculateLockoutSeconds(lockoutCount) {
   const timeout = BASE_TIMEOUT_SECONDS * Math.pow(TIMEOUT_MULTIPLIER, lockoutCount);
   return Math.min(timeout, MAX_TIMEOUT_SECONDS);
 }
 
+/* Делает: Получает identity. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
 function getIdentity(req, customKeyGenerator) {
   if (typeof customKeyGenerator === 'function') {
     return customKeyGenerator(req);
@@ -23,11 +27,13 @@ function getIdentity(req, customKeyGenerator) {
   return req.ip || req.socket?.remoteAddress || 'unknown';
 }
 
+/* Делает: Получает remaining attempts. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
 function getRemainingAttempts(record) {
   const remaining = MAX_ATTEMPTS_BEFORE_LOCK - (record.attempts % MAX_ATTEMPTS_BEFORE_LOCK);
   return remaining === MAX_ATTEMPTS_BEFORE_LOCK && record.attempts > 0 ? 0 : remaining;
 }
 
+/* Делает: Создаёт middleware ограничения частоты limit. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
 export function createRateLimitMiddleware({
   scope,
   keyGenerator,
@@ -37,7 +43,7 @@ export function createRateLimitMiddleware({
     throw new Error('Rate limit scope is required');
   }
 
-  return (req, res, next) => {
+  return /* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри createRateLimitMiddleware. */ (req, res, next) => {
     const identity = String(getIdentity(req, keyGenerator) || 'unknown').trim().toLowerCase();
     const storeKey = buildStoreKey(scope, identity);
     const now = Date.now();
@@ -63,7 +69,7 @@ export function createRateLimitMiddleware({
     }
 
     const originalJson = res.json.bind(res);
-    res.json = (body) => {
+    res.json = /* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри callback. */ (body) => {
       const statusCode = res.statusCode || 200;
       const shouldCountFailure =
         failureStatuses.includes(statusCode) ||
@@ -101,3 +107,44 @@ export function createRateLimitMiddleware({
   };
 }
 
+/* Делает: Создаёт middleware запроса throttle. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.js. */
+export function createRequestThrottleMiddleware({
+  scope,
+  keyGenerator,
+  windowMs = 15 * 60 * 1000,
+  maxRequests = 10,
+  message = 'Слишком много запросов. Повторите позже.',
+} = {}) {
+  if (!scope) {
+    throw new Error('Throttle scope is required');
+  }
+
+  return /* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри createRequestThrottleMiddleware. */ (req, res, next) => {
+    const identity = String(getIdentity(req, keyGenerator) || 'unknown').trim().toLowerCase();
+    const storeKey = buildStoreKey(scope, identity);
+    const now = Date.now();
+    const current = requestThrottleStore.get(storeKey);
+
+    if (!current || now >= current.resetAt) {
+      requestThrottleStore.set(storeKey, {
+        count: 1,
+        resetAt: now + windowMs,
+      });
+      return next();
+    }
+
+    if (current.count >= maxRequests) {
+      const retryAfterSeconds = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
+      res.set('Retry-After', String(retryAfterSeconds));
+      return res.status(429).json({
+        success: false,
+        message,
+        retryAfterSeconds,
+      });
+    }
+
+    current.count += 1;
+    requestThrottleStore.set(storeKey, current);
+    return next();
+  };
+}

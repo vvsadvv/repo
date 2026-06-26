@@ -1,14 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createRateLimitMiddleware } from './rateLimitMiddleware.js';
+import { createRateLimitMiddleware, createRequestThrottleMiddleware } from './rateLimitMiddleware.js';
 
 let scopeCounter = 0;
 
+/* Делает: Выполняет unique scope. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.test.js. */
 function uniqueScope(prefix = 'rate-limit-test') {
   scopeCounter += 1;
   return `${prefix}-${scopeCounter}`;
 }
 
+/* Делает: Создаёт запрос. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.test.js. */
 function createRequest(overrides = {}) {
   return {
     ip: '127.0.0.1',
@@ -18,15 +20,24 @@ function createRequest(overrides = {}) {
   };
 }
 
+/* Делает: Создаёт ответ. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.test.js. */
 function createResponse() {
   return {
     statusCode: 200,
     payload: undefined,
+    headers: {},
     headersSent: false,
+        /* Делает: Выполняет set. Применение: используется внутри функции createResponse. */
+    set(name, value) {
+      this.headers[name] = value;
+      return this;
+    },
+        /* Делает: Выполняет статус. Применение: используется внутри функции createResponse. */
     status(code) {
       this.statusCode = code;
       return this;
     },
+        /* Делает: Выполняет json. Применение: используется внутри функции createResponse. */
     json(body) {
       this.payload = body;
       this.headersSent = true;
@@ -35,6 +46,7 @@ function createResponse() {
   };
 }
 
+/* Делает: Выполняет запрос simulate. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.test.js. */
 function simulateRequest(
   middleware,
   { reqOverrides = {}, handlerStatus = 200, handlerBody = { success: true } } = {}
@@ -43,7 +55,7 @@ function simulateRequest(
   const res = createResponse();
   let nextCalled = false;
 
-  middleware(req, res, () => {
+  middleware(req, res, /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в middleware внутри simulateRequest. */ () => {
     nextCalled = true;
   });
 
@@ -54,28 +66,31 @@ function simulateRequest(
   return { req, res, nextCalled };
 }
 
+/* Делает: Выполняет with mocked now. Применение: используется локально в файле backend/middleware/rateLimitMiddleware.test.js. */
 function withMockedNow(callback) {
   const originalNow = Date.now;
   let current = 1_700_000_000_000;
-  Date.now = () => current;
+  Date.now = /* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри withMockedNow. */ () => current;
 
+    /* Делает: Выполняет advance ms. Применение: используется внутри функции withMockedNow. */
   const advanceMs = (ms) => {
     current += ms;
   };
 
   try {
-    callback({ advanceMs, now: () => current });
+    callback({ advanceMs,     /* Делает: Выполняет now. Применение: используется внутри функции withMockedNow. */
+    now: () => current });
   } finally {
     Date.now = originalNow;
   }
 }
 
-test('createRateLimitMiddleware: throws when scope is missing', () => {
-  assert.throws(() => createRateLimitMiddleware(), /scope/i);
+test('createRateLimitMiddleware: throws when scope is missing', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  assert.throws(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в throws внутри testCallback. */ () => createRateLimitMiddleware(), /scope/i);
 });
 
-test('locks after repeated failed requests and blocks during active lock', () => {
-  withMockedNow(({ advanceMs }) => {
+test('locks after repeated failed requests and blocks during active lock', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ ({ advanceMs }) => {
     const middleware = createRateLimitMiddleware({ scope: uniqueScope() });
 
     for (let attempt = 1; attempt <= 4; attempt += 1) {
@@ -116,8 +131,8 @@ test('locks after repeated failed requests and blocks during active lock', () =>
   });
 });
 
-test('successful response resets attempts for the same identity', () => {
-  withMockedNow(() => {
+test('successful response resets attempts for the same identity', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ () => {
     const middleware = createRateLimitMiddleware({ scope: uniqueScope() });
 
     simulateRequest(middleware, {
@@ -148,10 +163,11 @@ test('successful response resets attempts for the same identity', () => {
   });
 });
 
-test('normalizes custom keyGenerator identity to lowercase and trims edges', () => {
-  withMockedNow(() => {
+test('normalizes custom keyGenerator identity to lowercase and trims edges', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ () => {
     const middleware = createRateLimitMiddleware({
       scope: uniqueScope(),
+            /* Делает: Выполняет key generator. Применение: используется внутри функции withMockedNowCallback. */
       keyGenerator: (req) => `   ${req.ip}:${req.body.login}   `,
     });
 
@@ -175,8 +191,8 @@ test('normalizes custom keyGenerator identity to lowercase and trims edges', () 
   });
 });
 
-test('rate limits are isolated by identity', () => {
-  withMockedNow(() => {
+test('rate limits are isolated by identity', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ () => {
     const middleware = createRateLimitMiddleware({ scope: uniqueScope() });
 
     for (let attempt = 1; attempt <= 5; attempt += 1) {
@@ -205,8 +221,8 @@ test('rate limits are isolated by identity', () => {
   });
 });
 
-test('massive repeated failures progressively increase lock timeout up to cap', () => {
-  withMockedNow(({ advanceMs }) => {
+test('massive repeated failures progressively increase lock timeout up to cap', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ ({ advanceMs }) => {
     const middleware = createRateLimitMiddleware({ scope: uniqueScope('rate-limit-mass') });
     const expectedTimeouts = [30, 60, 120, 240, 480, 960, 1800, 1800];
     const observedTimeouts = [];
@@ -236,8 +252,8 @@ test('massive repeated failures progressively increase lock timeout up to cap', 
   });
 });
 
-test('mass calls for many identities stay isolated and do not leak counters', () => {
-  withMockedNow(() => {
+test('mass calls for many identities stay isolated and do not leak counters', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ () => {
     const middleware = createRateLimitMiddleware({ scope: uniqueScope('rate-limit-isolation-mass') });
     const identityCount = 20;
 
@@ -273,5 +289,34 @@ test('mass calls for many identities stay isolated and do not leak counters', ()
       handlerBody: { success: false },
     });
     assert.equal(brandNewIdentity.res.statusCode, 400);
+  });
+});
+
+test('createRequestThrottleMiddleware blocks repeated successful requests in a fixed window', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  withMockedNow(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withMockedNow внутри testCallback. */ ({ advanceMs }) => {
+    const middleware = createRequestThrottleMiddleware({
+      scope: uniqueScope('request-throttle'),
+      maxRequests: 2,
+      windowMs: 10_000,
+    });
+
+    const first = simulateRequest(middleware);
+    assert.equal(first.nextCalled, true);
+    assert.equal(first.res.statusCode, 200);
+
+    const second = simulateRequest(middleware);
+    assert.equal(second.nextCalled, true);
+    assert.equal(second.res.statusCode, 200);
+
+    const blocked = simulateRequest(middleware);
+    assert.equal(blocked.nextCalled, false);
+    assert.equal(blocked.res.statusCode, 429);
+    assert.equal(blocked.res.headers['Retry-After'], '10');
+
+    advanceMs(10_000);
+
+    const afterReset = simulateRequest(middleware);
+    assert.equal(afterReset.nextCalled, true);
+    assert.equal(afterReset.res.statusCode, 200);
   });
 });

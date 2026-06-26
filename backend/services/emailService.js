@@ -1,6 +1,7 @@
 import { createTransport, createTestAccount, getTestMessageUrl } from 'nodemailer';
 
 class EmailService {
+    /* Делает: Инициализирует экземпляр EmailService и подготавливает его начальное состояние. Применение: вызывается при создании экземпляра класса EmailService в этом модуле. */
   constructor() {
     this.transporter = null;
     this.isInitialized = false;
@@ -9,11 +10,13 @@ class EmailService {
     this.fromName = process.env.SMTP_FROM_NAME || 'Репозиторий ФИЦ ЕГС РАС';
   }
 
+    /* Делает: Выполняет reset transport state. Применение: используется внутри класса EmailService. */
   resetTransportState() {
     this.transporter = null;
     this.isInitialized = false;
   }
 
+    /* Делает: Получает transport timeouts. Применение: используется внутри класса EmailService. */
   getTransportTimeouts() {
     return {
       connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT || '10000', 10),
@@ -24,6 +27,7 @@ class EmailService {
     };
   }
 
+    /* Делает: Получает configured proxy. Применение: используется внутри класса EmailService. */
   getConfiguredProxy() {
     const proxyValue = String(process.env.SMTP_PROXY || '').trim();
     if (!proxyValue) {
@@ -33,6 +37,7 @@ class EmailService {
     return proxyValue.replace(/^socks5h:\/\//i, 'socks5://');
   }
 
+    /* Делает: Выполняет configure proxy support if needed. Применение: используется внутри класса EmailService. */
   async configureProxySupportIfNeeded(transporter, config) {
     const proxyUrl = String(config?.proxy || '').trim();
     if (!proxyUrl || !/^socks/i.test(proxyUrl)) {
@@ -50,23 +55,24 @@ class EmailService {
     }
   }
 
+    /* Делает: Выполняет with timeout. Применение: используется внутри класса EmailService. */
   withTimeout(operation, timeoutMs, label) {
     const duration = Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 25000;
-    const execute = typeof operation === 'function' ? operation : () => operation;
+    const execute = typeof operation === 'function' ? operation : /* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри withTimeout. */ () => operation;
 
-    return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
+    return new Promise(/* Делает: Выполняет локальный callback в текущем месте модуля. Применение: используется локально внутри withTimeout. */ (resolve, reject) => {
+      const timer = setTimeout(/* Делает: Запускает отложенное действие по таймеру. Применение: передаётся как callback в setTimeout внутри callback. */ () => {
         reject(new Error(`${label} (timeout ${duration}ms)`));
       }, duration);
 
       Promise.resolve()
         .then(execute)
         .then(
-          (result) => {
+          /* Делает: Обрабатывает успешный результат предыдущего промиса. Применение: передаётся как callback в then внутри callback. */ (result) => {
             clearTimeout(timer);
             resolve(result);
           },
-          (error) => {
+          /* Делает: Обрабатывает успешный результат предыдущего промиса. Применение: передаётся как callback в then внутри callback. */ (error) => {
             clearTimeout(timer);
             reject(error);
           }
@@ -74,6 +80,7 @@ class EmailService {
     });
   }
 
+    /* Делает: Получает header from. Применение: используется внутри класса EmailService. */
   getFromHeader() {
     if (String(this.fromAddress).includes('<') && String(this.fromAddress).includes('>')) {
       return this.fromAddress;
@@ -82,6 +89,7 @@ class EmailService {
     return `\"${this.fromName}\" <${this.fromAddress}>`;
   }
 
+    /* Делает: Собирает smtp configs. Применение: используется внутри класса EmailService. */
   buildSmtpConfigs() {
     const host = process.env.SMTP_HOST;
     const basePort = parseInt(process.env.SMTP_PORT || '587', 10);
@@ -132,6 +140,7 @@ class EmailService {
     return configs;
   }
 
+    /* Делает: Определяет, нужно ли retry with reconnect. Применение: используется внутри класса EmailService. */
   shouldRetryWithReconnect(error) {
     const code = String(error?.code || '').toUpperCase();
     const message = String(error?.message || '').toLowerCase();
@@ -159,6 +168,7 @@ class EmailService {
     );
   }
 
+    /* Делает: Гарантирует initialized. Применение: используется внутри класса EmailService. */
   async ensureInitialized({ force = false } = {}) {
     if (!force && this.isInitialized && this.transporter) {
       return;
@@ -169,7 +179,7 @@ class EmailService {
         this.resetTransportState();
       }
 
-      this.initializationPromise = this.initialize().finally(() => {
+      this.initializationPromise = this.initialize().finally(/* Делает: Выполняет завершающее действие после промиса. Применение: передаётся как callback в finally внутри ensureInitialized. */ () => {
         this.initializationPromise = null;
       });
     }
@@ -177,6 +187,7 @@ class EmailService {
     await this.initializationPromise;
   }
 
+    /* Делает: Выполняет initialize. Применение: используется внутри класса EmailService. */
   async initialize() {
     try {
       this.resetTransportState();
@@ -191,7 +202,7 @@ class EmailService {
             const transporter = createTransport(config);
             await this.configureProxySupportIfNeeded(transporter, config);
             await this.withTimeout(
-              () => transporter.verify(),
+              /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withTimeout внутри initialize. */ () => transporter.verify(),
               this.getTransportTimeouts().operationTimeout,
               'Проверка SMTP-соединения не завершилась вовремя'
             );
@@ -211,7 +222,7 @@ class EmailService {
 
       console.log('Инициализация тестового email (Ethereal)...');
       const testAccount = await this.withTimeout(
-        () => createTestAccount(),
+        /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withTimeout внутри initialize. */ () => createTestAccount(),
         this.getTransportTimeouts().operationTimeout,
         'Создание тестового email аккаунта не завершилось вовремя'
       );
@@ -228,7 +239,7 @@ class EmailService {
 
       this.transporter = createTransport(transporterConfig);
       await this.withTimeout(
-        () => this.transporter.verify(),
+        /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withTimeout внутри initialize. */ () => this.transporter.verify(),
         this.getTransportTimeouts().operationTimeout,
         'Проверка тестового SMTP-соединения не завершилась вовремя'
       );
@@ -246,12 +257,14 @@ class EmailService {
     }
   }
 
+    /* Делает: Выполняет send mail. Применение: используется внутри класса EmailService. */
   async sendMail(options) {
     await this.ensureInitialized();
 
+        /* Делает: Выполняет send with current transport. Применение: используется внутри функции sendMail. */
     const sendWithCurrentTransport = async () =>
       this.withTimeout(
-        () =>
+        /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в withTimeout внутри sendWithCurrentTransport. */ () =>
           this.transporter.sendMail({
             from: this.getFromHeader(),
             ...options,
@@ -287,9 +300,10 @@ class EmailService {
     };
   }
 
+    /* Делает: Собирает message template. Применение: используется внутри класса EmailService. */
   buildMessageTemplate({ title, message, details = [], actionLabel = '', actionUrl = '' }) {
     const detailsHtml = details.length
-      ? `<ul style=\"padding-left:18px; color:#4b5b73;\">${details.map((item) => `<li>${item}</li>`).join('')}</ul>`
+      ? `<ul style=\"padding-left:18px; color:#4b5b73;\">${details.map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри buildMessageTemplate. */ (item) => `<li>${item}</li>`).join('')}</ul>`
       : '';
     const actionHtml = actionLabel && actionUrl
       ? `<div style=\"margin:24px 0; text-align:center;\"><a href=\"${actionUrl}\" style=\"display:inline-block; background:#1f5fa4; color:#fff; text-decoration:none; padding:12px 22px; border-radius:8px; font-weight:600;\">${actionLabel}</a></div>`
@@ -320,6 +334,7 @@ class EmailService {
     `;
   }
 
+    /* Делает: Выполняет email send пароля сброса. Применение: используется внутри класса EmailService. */
   async sendPasswordResetEmail(userEmail, userName, resetLink) {
     return this.sendMail({
       to: userEmail,
@@ -334,6 +349,7 @@ class EmailService {
     });
   }
 
+    /* Делает: Выполняет send repository admin notification. Применение: используется внутри класса EmailService. */
   async sendRepositoryAdminNotification({ to, subject, title, message, details = [], actionLabel = '', actionUrl = '' }) {
     return this.sendMail({
       to,
@@ -342,6 +358,7 @@ class EmailService {
     });
   }
 
+    /* Делает: Выполняет send repository user notification. Применение: используется внутри класса EmailService. */
   async sendRepositoryUserNotification({ to, subject, title, message, details = [], actionLabel = '', actionUrl = '' }) {
     return this.sendMail({
       to,
@@ -353,6 +370,7 @@ class EmailService {
 
 let emailServiceInstance = null;
 
+/* Делает: Получает сервис email. Применение: используется локально в файле backend/services/emailService.js. */
 export const getEmailService = async () => {
   if (!emailServiceInstance) {
     emailServiceInstance = new EmailService();

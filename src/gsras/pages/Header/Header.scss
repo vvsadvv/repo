@@ -1,0 +1,181 @@
+﻿@use '@gsras-styles/variables.scss';
+
+.header {
+  &__container {
+    border-bottom: 4px solid variables.$main-color;
+    background: #ffffff;
+    box-shadow: 0 12px 34px rgba(18, 40, 63, 0.08);
+  }
+
+  &__home-link {
+    display: block;
+    text-decoration: none;
+  }
+
+  &__logo-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    background:
+      linear-gradient(135deg, rgba(31, 62, 108, 0.92) 0%, rgba(41, 81, 140, 0.96) 48%, rgba(69, 109, 171, 0.96) 100%);
+    padding: 0 12px 18px;
+  }
+
+  &__logo {
+    width: 100%;
+    max-width: 1600px;
+    display: block;
+  }
+
+  &__brand-row {
+    width: min(1600px, 100%);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 0 10px;
+    color: #ffffff;
+  }
+
+  &__brand-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__eyebrow {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  &__title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__lang,
+  &__cta {
+    text-decoration: none;
+    transition:
+      transform variables.$transition-medium ease,
+      box-shadow variables.$transition-medium ease,
+      background variables.$transition-medium ease;
+  }
+
+  &__lang {
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    color: variables.$accent-gold;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+
+    &:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &--active {
+      color: #12314f;
+      background: #ffffff;
+      border-color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  &__cta {
+    padding: 10px 14px;
+    border-radius: 999px;
+    color: #12314f;
+    background: linear-gradient(135deg, #f5e2a2 0%, #d7b65d 100%);
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 10px 24px rgba(17, 36, 58, 0.2);
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(17, 36, 58, 0.24);
+    }
+  }
+
+  &__nav-container {
+    margin: 0 auto;
+    width: min(1600px, 100%);
+    padding: 14px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  &__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  &__link {
+    color: #17324d;
+    text-decoration: none;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      color: #0c5da8;
+    }
+
+    &--active {
+      color: #0c5da8;
+      border-bottom-color: #0c5da8;
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    &__brand-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__actions {
+      justify-content: flex-start;
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .header {
+    &__nav-container {
+      padding: 12px 14px 14px;
+    }
+
+    &__title {
+      font-size: 16px;
+    }
+
+    &__link,
+    &__cta {
+      font-size: 13px;
+    }
+  }
+}
+

@@ -2,6 +2,8 @@ export interface RepositoryOrganizationReference {
   id: number;
   name_ru: string;
   name_en: string | null;
+  full_name_ru?: string | null;
+  full_name_en?: string | null;
   status: 'pending' | 'approved' | 'rejected';
   requester_name?: string | null;
   requester_email?: string | null;
@@ -13,6 +15,8 @@ export interface RepositoryAuthorReferenceOrganization {
   id: number;
   name_ru: string;
   name_en: string | null;
+  full_name_ru?: string | null;
+  full_name_en?: string | null;
   link_status?: 'pending' | 'approved' | 'rejected';
 }
 

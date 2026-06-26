@@ -1,15 +1,19 @@
 import type { RepositoryUser } from './repositoryAuth';
 
 export type RepositoryBlockType = 'text' | 'image' | 'link' | 'file';
-export type RepositoryDocumentStatus = 'needs_revision' | 'under_review' | 'verified';
+export type RepositoryDocumentStatus = 'draft' | 'needs_revision' | 'under_review' | 'verified';
 
 export interface RepositoryBlock {
   id: string;
   type: RepositoryBlockType;
+  placement?: 'content' | 'meta';
   content?: string;
   label?: string;
   url?: string;
+  sourceUrl?: string;
   fileName?: string;
+  fileSize?: number;
+  mimeType?: string;
 }
 
 export interface RepositoryAuthorEntry {
@@ -18,13 +22,17 @@ export interface RepositoryAuthorEntry {
   authorEn: string;
   organizationRu: string;
   organizationEn: string;
+  organizationFullRu?: string;
+  organizationFullEn?: string;
   referenceAuthorId: number | null;
   referenceOrganizationId: number | null;
 }
 
 export interface RepositoryDocumentMeta {
   annotation: string;
+  bibliography?: string;
   publicationDate: string;
+  publicationYear?: string;
   authors: string;
   affiliations: string;
   organization: string;

@@ -1,6 +1,6 @@
 @use '@styles/variables.scss';
 
-.footer {
+.repository-footer {
   margin-top: auto;
 
   &__container {
@@ -84,7 +84,7 @@
 }
 
 @media screen and (max-width: 767px) {
-  .footer {
+  .repository-footer {
     &__container {
       padding: 24px 18px 28px;
       row-gap: 16px;

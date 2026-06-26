@@ -1,10 +1,9 @@
 ﻿.repository-search {
-  padding: 24px 0 40px;
+  padding: 32px 24px 48px;
 
   &__container {
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 0 20px;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -43,5 +42,11 @@
       background: #ffe9e9;
       color: #8a1f1f;
     }
+  }
+}
+
+@media (max-width: 960px) {
+  .repository-search {
+    padding: 20px 14px 40px;
   }
 }

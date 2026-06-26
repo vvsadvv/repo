@@ -2,7 +2,7 @@ import Button from '@components/Button/Button';
 import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import '@pages/Authorization/Login/Login.scss';
 import { useForm } from 'react-hook-form';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 import {
@@ -21,36 +21,35 @@ interface LoginFormData {
 
 const RATE_LIMIT_KEY = 'repository_login';
 
+/* Делает: Рендерит React-компонент RepositoryLogin и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 export default function RepositoryLogin() {
   const { register, handleSubmit, formState } = useForm<LoginFormData>();
   const { login } = useRepositoryAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [pendingModalOpen, setPendingModalOpen] = useState(false);
   const [lockoutTime, setLockoutTime] = useState(0);
   const [remainingAttempts, setRemainingAttempts] = useState(MAX_ATTEMPTS_BEFORE_LOCK);
-  const from = (location.state as { from?: string })?.from || '/repository';
   const isLocked = lockoutTime > 0;
 
-  const updateLockoutStatus = useCallback(() => {
+  const updateLockoutStatus = useCallback(/* Делает: Создаёт мемоизированный обработчик для React-компонента. Применение: передаётся как callback в useCallback внутри RepositoryLogin. */ () => {
     const timeRemaining = checkRateLimitStatus(RATE_LIMIT_KEY);
     setLockoutTime(timeRemaining);
     setRemainingAttempts(getRemainingAttempts(RATE_LIMIT_KEY));
   }, []);
 
-  useEffect(() => {
+  useEffect(/* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри RepositoryLogin. */ () => {
     updateLockoutStatus();
   }, [updateLockoutStatus]);
 
-  useEffect(() => {
+  useEffect(/* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри RepositoryLogin. */ () => {
     if (lockoutTime <= 0) {
       return;
     }
 
-    const timer = setInterval(() => {
-      setLockoutTime((current) => {
+    const timer = setInterval(/* Делает: Запускает периодическое действие по таймеру. Применение: передаётся как callback в setInterval внутри useEffectCallback. */ () => {
+      setLockoutTime(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в setLockoutTime внутри setIntervalCallback. */ (current) => {
         if (current <= 1) {
           clearInterval(timer);
           updateLockoutStatus();
@@ -61,9 +60,10 @@ export default function RepositoryLogin() {
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return /* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри useEffectCallback. */ () => clearInterval(timer);
   }, [lockoutTime, updateLockoutStatus]);
 
+    /* Делает: Выполняет on submit. Применение: используется внутри функции RepositoryLogin. */
   const onSubmit = async (data: LoginFormData) => {
     if (isLocked) {
       setServerError(`Слишком много попыток. Подождите ${formatTimeRemaining(lockoutTime)}`);
@@ -92,20 +92,13 @@ export default function RepositoryLogin() {
           return;
         }
 
-        const attemptsLeft = getRemainingAttempts(RATE_LIMIT_KEY);
         const message = result.message || 'Ошибка входа в репозиторий';
-        setServerError(attemptsLeft > 0 ? `${message}. Осталось попыток: ${attemptsLeft}` : message);
+        setServerError(message);
         return;
       }
 
       resetRateLimit(RATE_LIMIT_KEY);
-
-      if (result.user.role === 'admin') {
-        navigate('/repository/admin', { replace: true });
-        return;
-      }
-
-      navigate(from, { replace: true });
+      navigate('/repository/cabinet', { replace: true });
     } catch (error: any) {
       const lockTime = recordFailedAttempt(RATE_LIMIT_KEY);
       updateLockoutStatus();
@@ -115,9 +108,8 @@ export default function RepositoryLogin() {
           `Превышен лимит попыток. Доступ заблокирован на ${formatTimeRemaining(lockTime)}`
         );
       } else {
-        const attemptsLeft = getRemainingAttempts(RATE_LIMIT_KEY);
         const message = error?.message || 'Ошибка входа в репозиторий';
-        setServerError(attemptsLeft > 0 ? `${message}. Осталось попыток: ${attemptsLeft}` : message);
+        setServerError(message);
       }
     } finally {
       setIsLoading(false);
@@ -154,6 +146,7 @@ export default function RepositoryLogin() {
             disabled={isLoading || isLocked}
           />
           {formState.errors.login && <p className='login__form-error'>{formState.errors.login.message}</p>}
+          <p className='login__form-hint'>Логин или email вводятся на английском языке.</p>
 
           <input
             {...register('password', {
@@ -166,6 +159,7 @@ export default function RepositoryLogin() {
             disabled={isLoading || isLocked}
           />
           {formState.errors.password && <p className='login__form-error'>{formState.errors.password.message}</p>}
+          <p className='login__form-hint'>Пароль вводится в английской раскладке.</p>
         </form>
 
         <Button
@@ -192,8 +186,8 @@ export default function RepositoryLogin() {
         variant='info'
         confirmText='Понятно'
         showCancel={false}
-        onConfirm={() => setPendingModalOpen(false)}
-        onCancel={() => setPendingModalOpen(false)}
+        onConfirm={/* Делает: Обрабатывает событие onConfirm в JSX-разметке. Применение: используется как inline-обработчик onConfirm внутри файла src/pages/RepositoryAuthorization/RepositoryLogin.tsx. */ () => setPendingModalOpen(false)}
+        onCancel={/* Делает: Обрабатывает событие onCancel в JSX-разметке. Применение: используется как inline-обработчик onCancel внутри файла src/pages/RepositoryAuthorization/RepositoryLogin.tsx. */ () => setPendingModalOpen(false)}
       />
     </section>
   );

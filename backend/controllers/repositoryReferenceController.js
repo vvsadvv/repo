@@ -1,5 +1,6 @@
 import { RepositoryReferenceModel } from '../models/RepositoryReference.js';
 
+/* Делает: Форматирует request actor. Применение: используется локально в файле backend/controllers/repositoryReferenceController.js. */
 function formatRequestActor(user) {
   return user
     ? {
@@ -12,6 +13,7 @@ function formatRequestActor(user) {
 }
 
 export class RepositoryReferenceController {
+    /* Делает: Получает организации. Применение: используется внутри класса RepositoryReferenceController. */
   static async getOrganizations(req, res) {
     try {
       const organizations = await RepositoryReferenceModel.listApprovedOrganizations();
@@ -22,10 +24,13 @@ export class RepositoryReferenceController {
     }
   }
 
+    /* Делает: Выполняет организацию запроса. Применение: используется внутри класса RepositoryReferenceController. */
   static async requestOrganization(req, res) {
     try {
       const nameRu = String(req.body?.nameRu || '').trim();
       const nameEn = String(req.body?.nameEn || '').trim();
+      const fullNameRu = String(req.body?.fullNameRu || '').trim();
+      const fullNameEn = String(req.body?.fullNameEn || '').trim();
       const requesterName = String(req.body?.requesterName || '').trim();
       const requesterEmail = String(req.body?.requesterEmail || '').trim();
 
@@ -36,6 +41,8 @@ export class RepositoryReferenceController {
       const organization = await RepositoryReferenceModel.createOrganizationRequest({
         name_ru: nameRu,
         name_en: nameEn,
+        full_name_ru: fullNameRu,
+        full_name_en: fullNameEn,
         requester_name: requesterName,
         requester_email: requesterEmail,
         requested_by_user_id: req.repositoryUser?.id || null,
@@ -53,6 +60,7 @@ export class RepositoryReferenceController {
     }
   }
 
+    /* Делает: Получает авторов. Применение: используется внутри класса RepositoryReferenceController. */
   static async getAuthors(req, res) {
     try {
       const authors = await RepositoryReferenceModel.listApprovedAuthors();
@@ -63,6 +71,7 @@ export class RepositoryReferenceController {
     }
   }
 
+    /* Делает: Выполняет автора запроса. Применение: используется внутри класса RepositoryReferenceController. */
   static async requestAuthor(req, res) {
     try {
       const actor = formatRequestActor(req.repositoryUser);

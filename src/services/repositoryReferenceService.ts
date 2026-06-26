@@ -1,27 +1,23 @@
 import axios from 'axios';
 import type { RepositoryAuthorReference, RepositoryOrganizationReference } from '@/types/repositoryReference';
 import { getRepositoryToken } from '@/utils/repositoryAuthStorage';
+import { toApiError } from '@/utils/apiErrors';
 
 const API_BASE = '/api/repository-reference';
 
+/* Делает: Выполняет auth headers. Применение: используется локально в файле src/services/repositoryReferenceService.ts. */
 function authHeaders() {
   const token = getRepositoryToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+/* Делает: Выполняет ошибку to сервиса. Применение: используется локально в файле src/services/repositoryReferenceService.ts. */
 function toServiceError(error: unknown) {
-  if (axios.isAxiosError(error)) {
-    return new Error(
-      (error.response?.data as { message?: string } | undefined)?.message ||
-      error.message ||
-      'Ошибка запроса'
-    );
-  }
-
-  return error instanceof Error ? error : new Error('Ошибка запроса');
+  return toApiError(error, 'Ошибка запроса');
 }
 
 export const repositoryReferenceService = {
+    /* Делает: Получает организации. Применение: используется внутри объекта repositoryReferenceService. */
   async getOrganizations() {
     try {
       const response = await axios.get<{ organizations: RepositoryOrganizationReference[] }>(`${API_BASE}/organizations`, {
@@ -33,9 +29,12 @@ export const repositoryReferenceService = {
     }
   },
 
+    /* Делает: Выполняет организацию запроса. Применение: используется внутри объекта repositoryReferenceService. */
   async requestOrganization(payload: {
     nameRu: string;
     nameEn?: string;
+    fullNameRu?: string;
+    fullNameEn?: string;
     requesterName?: string;
     requesterEmail?: string;
   }) {
@@ -53,6 +52,7 @@ export const repositoryReferenceService = {
     }
   },
 
+    /* Делает: Получает авторов. Применение: используется внутри объекта repositoryReferenceService. */
   async getAuthors() {
     try {
       const response = await axios.get<{ authors: RepositoryAuthorReference[] }>(`${API_BASE}/authors`, {
@@ -64,6 +64,7 @@ export const repositoryReferenceService = {
     }
   },
 
+    /* Делает: Выполняет автора запроса. Применение: используется внутри объекта repositoryReferenceService. */
   async requestAuthor(payload: {
     nameRu: string;
     nameEn: string;

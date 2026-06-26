@@ -1,0 +1,49 @@
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #10253b;
+  background: #edf3f8;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: 'Segoe UI', 'Noto Sans', Arial, sans-serif;
+  color: #10253b;
+  background:
+    radial-gradient(circle at top left, rgba(41, 81, 140, 0.08), transparent 34%),
+    linear-gradient(180deg, #f7fbfe 0%, #edf3f8 100%);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.page__container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

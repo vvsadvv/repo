@@ -9,24 +9,25 @@ interface NavigationLink {
   content: string;
 }
 
+/* Делает: Рендерит React-компонент LinkOrganization и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 function LinkOrganization({ classNamePart }: LinkOrganizationProps) {
   const links: NavigationLink[] = [
-    { href: 'http://www.gsras.ru/new/news/', content: 'Новости' },
-    { href: 'http://www.gsras.ru/new/ssd.htm', content: 'ССД' },
-    { href: 'http://www.gsras.ru/new/wf/', content: 'Сейсм.данные' },
-    { href: 'http://www.gsras.ru/new/gncc/', content: 'ГНСС данные' },
-    { href: 'http://www.gsras.ru/new/soft/', content: 'Продукты' },
-    { href: 'http://www.gsras.ru/new/links.htm', content: 'Ссылки' },
-    { href: 'http://www.gsras.ru/new/struct/', content: 'Структура' },
-    { href: 'http://www.gsras.ru/new/public/', content: 'Публикации' },
-    { href: 'http://www.gsras.ru/new/conf/', content: 'Конференции' },
-    { href: 'http://www.gsras.ru/new/announ/', content: 'Объявления' },
-    { href: 'http://www.gsras.ru/new/about.htm', content: 'О нас' },
+    { href: '/gsras/news', content: 'Новости' },
+    { href: '/gsras/section/ssd', content: 'ССД' },
+    { href: '/gsras/section/wf', content: 'Сейсм.данные' },
+    { href: '/gsras/section/gncc', content: 'ГНСС данные' },
+    { href: '/gsras/section/soft', content: 'Продукты' },
+    { href: '/gsras/section/links', content: 'Ссылки' },
+    { href: '/gsras/section/struct', content: 'Структура' },
+    { href: '/gsras/section/public', content: 'Публикации' },
+    { href: '/gsras/section/conf', content: 'Конференции' },
+    { href: '/gsras/section/announ', content: 'Объявления' },
+    { href: '/gsras/section/about', content: 'О нас' },
   ];
 
   return (
     <div className={`${classNamePart}__links`}>
-      {links.map((link) => {
+      {links.map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри LinkOrganization. */ (link) => {
         const className = `${classNamePart}__link`.trim();
 
         return (

@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 
+/* Делает: Проверяет корректность password strength. Применение: используется локально в файле src/pages/RepositoryAuthorization/RepositoryResetPassword.tsx. */
 const validatePasswordStrength = (password: string) => {
   if (!password) return 'Пароль обязателен';
   if (password.length < 8) return 'Минимум 8 символов';
@@ -14,6 +15,7 @@ const validatePasswordStrength = (password: string) => {
   return '';
 };
 
+/* Делает: Рендерит React-компонент RepositoryResetPassword и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 export default function RepositoryResetPassword() {
   const { verifyResetToken, resetPassword } = useRepositoryAuth();
   const [searchParams] = useSearchParams();
@@ -27,7 +29,8 @@ export default function RepositoryResetPassword() {
   const [successMessage, setSuccessMessage] = useState('');
   const [email, setEmail] = useState('');
 
-  useEffect(() => {
+  useEffect(/* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри RepositoryResetPassword. */ () => {
+        /* Делает: Выполняет токен check. Применение: используется внутри функции useEffectCallback. */
     const checkToken = async () => {
       if (!token) {
         setError('Ссылка для сброса пароля недействительна');
@@ -49,6 +52,7 @@ export default function RepositoryResetPassword() {
     void checkToken();
   }, [token, verifyResetToken]);
 
+    /* Делает: Обрабатывает submit. Применение: используется внутри функции RepositoryResetPassword. */
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const passwordError = validatePasswordStrength(password);
@@ -72,7 +76,7 @@ export default function RepositoryResetPassword() {
     }
 
     setSuccessMessage(result.message || 'Пароль изменен');
-    setTimeout(() => navigate('/repository/login', { replace: true }), 1400);
+    setTimeout(/* Делает: Запускает отложенное действие по таймеру. Применение: передаётся как callback в setTimeout внутри handleSubmit. */ () => navigate('/repository/login', { replace: true }), 1400);
   };
 
   if (isLoading) {
@@ -103,8 +107,8 @@ export default function RepositoryResetPassword() {
         {!successMessage && (
           <>
             <form id='repository-reset-form' className='login__form' onSubmit={handleSubmit}>
-              <input type='password' className='login__form-input' placeholder='Новый пароль' value={password} onChange={(event) => setPassword(event.target.value)} disabled={submitting} required />
-              <input type='password' className='login__form-input' placeholder='Повторите пароль' value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} disabled={submitting} required />
+              <input type='password' className='login__form-input' placeholder='Новый пароль' value={password} onChange={/* Делает: Обрабатывает событие onChange в JSX-разметке. Применение: используется как inline-обработчик onChange внутри файла src/pages/RepositoryAuthorization/RepositoryResetPassword.tsx. */ (event) => setPassword(event.target.value)} disabled={submitting} required />
+              <input type='password' className='login__form-input' placeholder='Повторите пароль' value={confirmPassword} onChange={/* Делает: Обрабатывает событие onChange в JSX-разметке. Применение: используется как inline-обработчик onChange внутри файла src/pages/RepositoryAuthorization/RepositoryResetPassword.tsx. */ (event) => setConfirmPassword(event.target.value)} disabled={submitting} required />
             </form>
             <Button form='repository-reset-form' type='submit' aim='login' content={submitting ? 'Сохранение...' : 'Сохранить пароль'} disabled={submitting} />
           </>

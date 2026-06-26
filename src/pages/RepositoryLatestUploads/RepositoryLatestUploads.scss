@@ -1,17 +1,25 @@
 ﻿.repository-latest-uploads {
-  padding: 24px 0 40px;
+  padding: 32px 24px 48px;
 
   &__container {
-    max-width: 1280px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 0 20px;
     display: flex;
     flex-direction: column;
     gap: 14px;
   }
 
   &__lead {
+    margin: 0;
     color: #3d4f61;
+  }
+
+  &__footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 8px;
   }
 
   &__actions {
@@ -57,5 +65,22 @@
       background: #ffe9e9;
       color: #8a1f1f;
     }
+  }
+
+  @media (max-width: 768px) {
+    &__footer {
+      flex-direction: column-reverse;
+      align-items: stretch;
+    }
+
+    &__actions {
+      justify-content: flex-start;
+    }
+  }
+}
+
+@media (max-width: 960px) {
+  .repository-latest-uploads {
+    padding: 20px 14px 40px;
   }
 }

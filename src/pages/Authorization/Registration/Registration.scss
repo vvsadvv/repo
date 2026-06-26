@@ -23,11 +23,31 @@
   gap: 6px;
 }
 
+.reg__password-mismatch {
+  color: #d32f2f;
+  font-size: 14px;
+  margin-top: 8px;
+  text-align: center;
+}
+
 .reg__form-error {
   color: #d32f2f;
   font-size: 14px;
   margin-top: 4px;
   margin-bottom: 8px;
+}
+
+.reg__form-hint {
+  color: #5f6f82;
+  font-size: 13px;
+  line-height: 1.4;
+  margin-top: -2px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.reg__form-hint--password {
+  margin: 0;
 }
 
 .reg__server-error {
@@ -74,12 +94,16 @@
 }
 
 .reg__password-requirements {
-  margin: 12px 0;
+  margin: 0;
   font-size: 13px;
   color: #555;
 
+  p {
+    margin: 0 0 8px;
+  }
+
   ul {
-    margin: 8px 0;
+    margin: 0;
     padding-left: 20px;
     list-style: none;
 
@@ -97,6 +121,14 @@
   }
 }
 
+.reg__password-help {
+  width: 70%;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .reg__organization,
 .reg__organization-request-fields {
   display: flex;
@@ -107,6 +139,39 @@
 .reg__organization {
   width: 70%;
   align-self: center;
+}
+
+.reg__consent {
+  width: 70%;
+  align-self: center;
+  margin-top: 8px;
+}
+
+.reg__consent-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #2c3d50;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.reg__consent-checkbox {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.reg__consent-link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: #0c5da8;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
 }
 
 .reg__organization .reg__form-input,
@@ -140,7 +205,9 @@
 }
 
 @media (max-width: 768px) {
-  .reg__organization {
+  .reg__password-help,
+  .reg__organization,
+  .reg__consent {
     width: 100%;
   }
 }

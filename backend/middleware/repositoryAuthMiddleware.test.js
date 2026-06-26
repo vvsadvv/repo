@@ -17,9 +17,11 @@ const repositoryJwtAudience = process.env.REPOSITORY_JWT_AUDIENCE || 'repo-users
 
 const originalFindById = RepositoryUserModel.findById;
 
+/* Делает: Создаёт запрос. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.test.js. */
 function createRequest({ authorization, repositoryUser } = {}) {
   return {
     repositoryUser,
+        /* Делает: Выполняет header. Применение: используется внутри функции createRequest. */
     header(name) {
       if (name === 'Authorization') {
         return authorization;
@@ -29,14 +31,17 @@ function createRequest({ authorization, repositoryUser } = {}) {
   };
 }
 
+/* Делает: Создаёт ответ. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.test.js. */
 function createResponse() {
   return {
     statusCode: 200,
     payload: undefined,
+        /* Делает: Выполняет статус. Применение: используется внутри функции createResponse. */
     status(code) {
       this.statusCode = code;
       return this;
     },
+        /* Делает: Выполняет json. Применение: используется внутри функции createResponse. */
     json(body) {
       this.payload = body;
       return body;
@@ -44,19 +49,20 @@ function createResponse() {
   };
 }
 
+/* Делает: Выполняет middleware run. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.test.js. */
 async function runMiddleware(middleware, req, res) {
   let nextCalled = false;
-  await middleware(req, res, () => {
+  await middleware(req, res, /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в middleware внутри runMiddleware. */ () => {
     nextCalled = true;
   });
   return nextCalled;
 }
 
-test.after(() => {
+test.after(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в after. */ () => {
   RepositoryUserModel.findById = originalFindById;
 });
 
-test('repositoryAuthMiddleware returns 401 when Authorization header is missing', async () => {
+test('repositoryAuthMiddleware returns 401 when Authorization header is missing', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest();
   const res = createResponse();
 
@@ -67,7 +73,7 @@ test('repositoryAuthMiddleware returns 401 when Authorization header is missing'
   assert.equal(res.payload.message, 'Требуется авторизация в репозитории');
 });
 
-test('repositoryAuthMiddleware returns 401 for invalid token', async () => {
+test('repositoryAuthMiddleware returns 401 for invalid token', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ authorization: 'Bearer malformed-token' });
   const res = createResponse();
 
@@ -78,7 +84,7 @@ test('repositoryAuthMiddleware returns 401 for invalid token', async () => {
   assert.equal(res.payload.message, 'Неверный токен репозитория');
 });
 
-test('repositoryAuthMiddleware rejects token with wrong scope', async () => {
+test('repositoryAuthMiddleware rejects token with wrong scope', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const token = jwt.sign(
     { repositoryUserId: 1, scope: 'generic' },
     repositorySecret,
@@ -99,7 +105,7 @@ test('repositoryAuthMiddleware rejects token with wrong scope', async () => {
   assert.equal(res.payload.message, 'Неверный токен репозитория');
 });
 
-test('repositoryAuthMiddleware returns 401 for expired token', async () => {
+test('repositoryAuthMiddleware returns 401 for expired token', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const expiredToken = jwt.sign(
     { repositoryUserId: 1, scope: 'repository' },
     repositorySecret,
@@ -120,9 +126,9 @@ test('repositoryAuthMiddleware returns 401 for expired token', async () => {
   assert.equal(res.payload.message, 'Токен репозитория истек');
 });
 
-test('repositoryAuthMiddleware returns 401 when user is missing', async (t) => {
-  RepositoryUserModel.findById = async () => null;
-  t.after(() => {
+test('repositoryAuthMiddleware returns 401 when user is missing', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async (t) => {
+  RepositoryUserModel.findById = /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test внутри testCallback. */ async () => null;
+  t.after(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в after внутри testCallback. */ () => {
     RepositoryUserModel.findById = originalFindById;
   });
 
@@ -137,9 +143,9 @@ test('repositoryAuthMiddleware returns 401 when user is missing', async (t) => {
   assert.equal(res.payload.message, 'Пользователь репозитория не найден');
 });
 
-test('repositoryAuthMiddleware returns 403 for inactive user', async (t) => {
-  RepositoryUserModel.findById = async () => ({ id: 1002, status: 'pending', role: 'editor' });
-  t.after(() => {
+test('repositoryAuthMiddleware returns 403 for inactive user', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async (t) => {
+  RepositoryUserModel.findById = /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test внутри testCallback. */ async () => ({ id: 1002, status: 'pending', role: 'editor' });
+  t.after(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в after внутри testCallback. */ () => {
     RepositoryUserModel.findById = originalFindById;
   });
 
@@ -154,10 +160,10 @@ test('repositoryAuthMiddleware returns 403 for inactive user', async (t) => {
   assert.equal(res.payload.message, 'Доступ к репозиторию еще не активирован');
 });
 
-test('repositoryAuthMiddleware sets user and calls next for active user', async (t) => {
+test('repositoryAuthMiddleware sets user and calls next for active user', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async (t) => {
   const activeUser = { id: 1003, status: 'active', role: 'editor' };
-  RepositoryUserModel.findById = async () => activeUser;
-  t.after(() => {
+  RepositoryUserModel.findById = /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test внутри testCallback. */ async () => activeUser;
+  t.after(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в after внутри testCallback. */ () => {
     RepositoryUserModel.findById = originalFindById;
   });
 
@@ -172,7 +178,7 @@ test('repositoryAuthMiddleware sets user and calls next for active user', async 
   assert.equal(req.repositoryUser, activeUser);
 });
 
-test('optionalRepositoryAuthMiddleware keeps request anonymous without token', async () => {
+test('optionalRepositoryAuthMiddleware keeps request anonymous without token', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest();
   const res = createResponse();
 
@@ -182,7 +188,7 @@ test('optionalRepositoryAuthMiddleware keeps request anonymous without token', a
   assert.equal(req.repositoryUser, null);
 });
 
-test('optionalRepositoryAuthMiddleware swallows invalid token and continues', async () => {
+test('optionalRepositoryAuthMiddleware swallows invalid token and continues', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ authorization: 'Bearer invalid-token' });
   const res = createResponse();
 
@@ -192,10 +198,10 @@ test('optionalRepositoryAuthMiddleware swallows invalid token and continues', as
   assert.equal(req.repositoryUser, null);
 });
 
-test('optionalRepositoryAuthMiddleware sets active user for valid token', async (t) => {
+test('optionalRepositoryAuthMiddleware sets active user for valid token', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async (t) => {
   const activeUser = { id: 1004, status: 'active', role: 'admin' };
-  RepositoryUserModel.findById = async () => activeUser;
-  t.after(() => {
+  RepositoryUserModel.findById = /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test внутри testCallback. */ async () => activeUser;
+  t.after(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в after внутри testCallback. */ () => {
     RepositoryUserModel.findById = originalFindById;
   });
 
@@ -209,7 +215,7 @@ test('optionalRepositoryAuthMiddleware sets active user for valid token', async 
   assert.equal(req.repositoryUser, activeUser);
 });
 
-test('repositoryEditorMiddleware blocks missing user with 401', async () => {
+test('repositoryEditorMiddleware blocks missing user with 401', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ repositoryUser: null });
   const res = createResponse();
 
@@ -220,7 +226,7 @@ test('repositoryEditorMiddleware blocks missing user with 401', async () => {
   assert.equal(res.payload.message, 'Требуется авторизация в репозитории');
 });
 
-test('repositoryEditorMiddleware blocks non-editor and non-admin roles with 403', async () => {
+test('repositoryEditorMiddleware blocks roles outside user/editor/admin with 403', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ repositoryUser: { id: 1, role: 'viewer' } });
   const res = createResponse();
 
@@ -228,10 +234,10 @@ test('repositoryEditorMiddleware blocks non-editor and non-admin roles with 403'
 
   assert.equal(nextCalled, false);
   assert.equal(res.statusCode, 403);
-  assert.equal(res.payload.message, 'Редактирование доступно только editor или admin');
+  assert.equal(res.payload.message, 'Редактирование доступно только user, editor или admin');
 });
 
-test('repositoryAdminMiddleware blocks non-admin role with 403', async () => {
+test('repositoryAdminMiddleware blocks non-admin role with 403', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ repositoryUser: { id: 2, role: 'editor' } });
   const res = createResponse();
 
@@ -242,7 +248,7 @@ test('repositoryAdminMiddleware blocks non-admin role with 403', async () => {
   assert.equal(res.payload.message, 'Требуется роль admin репозитория');
 });
 
-test('repositoryAdminMiddleware passes admin requests', async () => {
+test('repositoryAdminMiddleware passes admin requests', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ async () => {
   const req = createRequest({ repositoryUser: { id: 3, role: 'admin' } });
   const res = createResponse();
 

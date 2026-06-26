@@ -4,12 +4,14 @@ import ConfirmModal from '@/components/ConfirmModal/ConfirmModal';
 import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 import './RepositoryInstruction.scss';
 
+/* Делает: Рендерит React-компонент RepositoryInstruction и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 function RepositoryInstruction() {
   const navigate = useNavigate();
   const location = useLocation();
   const { canEditRepository, repositoryUser } = useRepositoryAuth();
   const [authRequiredModalOpen, setAuthRequiredModalOpen] = useState(false);
 
+    /* Делает: Обрабатывает protected action click. Применение: используется внутри функции RepositoryInstruction. */
   const handleProtectedActionClick = () => {
     if (canEditRepository) {
       return;
@@ -18,6 +20,7 @@ function RepositoryInstruction() {
     setAuthRequiredModalOpen(true);
   };
 
+    /* Делает: Обрабатывает регистрацию go to. Применение: используется внутри функции RepositoryInstruction. */
   const handleGoToRegistration = () => {
     const returnTo = `${location.pathname}${location.search}${location.hash}`;
     setAuthRequiredModalOpen(false);
@@ -35,7 +38,7 @@ function RepositoryInstruction() {
           <h1>Инструкция по заполнению документа</h1>
           <p>
             На этой странице собраны примеры, как корректно заполнить метаданные и блоки контента
-            перед сохранением и отправкой на проверку.
+            перед сохранением и отправкой на регистрацию.
           </p>
         </header>
 
@@ -184,8 +187,8 @@ function RepositoryInstruction() {
         confirmText={repositoryUser ? 'Понятно' : 'Перейти к регистрации'}
         cancelText='Закрыть'
         showCancel={!repositoryUser}
-        onConfirm={repositoryUser ? () => setAuthRequiredModalOpen(false) : handleGoToRegistration}
-        onCancel={() => setAuthRequiredModalOpen(false)}
+        onConfirm={repositoryUser ? /* Делает: Обрабатывает событие onConfirm в JSX-разметке. Применение: используется как inline-обработчик onConfirm внутри файла src/pages/RepositoryInstruction/RepositoryInstruction.tsx. */ () => setAuthRequiredModalOpen(false) : handleGoToRegistration}
+        onCancel={/* Делает: Обрабатывает событие onCancel в JSX-разметке. Применение: используется как inline-обработчик onCancel внутри файла src/pages/RepositoryInstruction/RepositoryInstruction.tsx. */ () => setAuthRequiredModalOpen(false)}
       />
     </section>
   );

@@ -13,6 +13,7 @@ const repositoryJwtIssuer = process.env.REPOSITORY_JWT_ISSUER || 'repo-backend';
 const repositoryJwtAudience = process.env.REPOSITORY_JWT_AUDIENCE || 'repo-users';
 const repositoryTokenCookieName = 'repository_token';
 
+/* Делает: Извлекает токен репозиторного cookie. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 function extractRepositoryCookieToken(req) {
   const cookieHeader = req.header('Cookie');
   if (!cookieHeader) {
@@ -21,8 +22,8 @@ function extractRepositoryCookieToken(req) {
 
   const tokenCookie = cookieHeader
     .split(';')
-    .map((entry) => entry.trim())
-    .find((entry) => entry.startsWith(`${repositoryTokenCookieName}=`));
+    .map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри extractRepositoryCookieToken. */ (entry) => entry.trim())
+    .find(/* Делает: Проверяет, подходит ли элемент под условие поиска. Применение: передаётся как callback в find внутри extractRepositoryCookieToken. */ (entry) => entry.startsWith(`${repositoryTokenCookieName}=`));
 
   if (!tokenCookie) {
     return null;
@@ -37,6 +38,7 @@ function extractRepositoryCookieToken(req) {
   }
 }
 
+/* Делает: Извлекает токен bearer. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 function extractBearerToken(req) {
   const authHeader = req.header('Authorization');
   if (authHeader?.startsWith('Bearer ')) {
@@ -46,6 +48,7 @@ function extractBearerToken(req) {
   return extractRepositoryCookieToken(req);
 }
 
+/* Делает: Проверяет токен репозиторного. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 function verifyRepositoryToken(token) {
   const decoded = jwt.verify(token, repositorySecret, {
     algorithms: ['HS256'],
@@ -60,6 +63,7 @@ function verifyRepositoryToken(token) {
   return decoded;
 }
 
+/* Делает: Выполняет middleware необязательного репозиторного авторизационного. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 export const optionalRepositoryAuthMiddleware = async (req, res, next) => {
   try {
     const token = extractBearerToken(req);
@@ -78,6 +82,7 @@ export const optionalRepositoryAuthMiddleware = async (req, res, next) => {
   }
 };
 
+/* Делает: Выполняет middleware репозиторного авторизационного. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 export const repositoryAuthMiddleware = async (req, res, next) => {
   try {
     const token = extractBearerToken(req);
@@ -112,6 +117,7 @@ export const repositoryAuthMiddleware = async (req, res, next) => {
   }
 };
 
+/* Делает: Выполняет middleware репозиторного редактора. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 export const repositoryEditorMiddleware = async (req, res, next) => {
   if (!req.repositoryUser) {
     return res.status(401).json({ message: 'Требуется авторизация в репозитории' });
@@ -124,6 +130,7 @@ export const repositoryEditorMiddleware = async (req, res, next) => {
   return next();
 };
 
+/* Делает: Выполняет middleware репозиторного административного. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 export const repositoryAdminMiddleware = async (req, res, next) => {
   if (!req.repositoryUser) {
     return res.status(401).json({ message: 'Требуется авторизация в репозитории' });
@@ -136,6 +143,7 @@ export const repositoryAdminMiddleware = async (req, res, next) => {
   return next();
 };
 
+/* Делает: Подписывает токен репозиторного. Применение: используется локально в файле backend/middleware/repositoryAuthMiddleware.js. */
 export const signRepositoryToken = (user) =>
   jwt.sign(
     { repositoryUserId: user.id, scope: 'repository' },

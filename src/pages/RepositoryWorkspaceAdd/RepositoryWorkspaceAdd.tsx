@@ -4,6 +4,7 @@ import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 import RepositoryPage from '@/pages/RepositoryPage/RepositoryPage';
 import { getStoredRepositoryUser, hasRepositoryToken } from '@/utils/repositoryAuthStorage';
 
+/* Делает: Рендерит React-компонент RepositoryWorkspaceAdd и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 export default function RepositoryWorkspaceAdd() {
   const { loading, canEditRepository, repositoryUser, refreshProfile } = useRepositoryAuth();
   const location = useLocation();
@@ -11,11 +12,11 @@ export default function RepositoryWorkspaceAdd() {
   const tokenPresent = hasRepositoryToken();
   const storedUser = getStoredRepositoryUser();
   const canEditByStoredSession = useMemo(
-    () => Boolean(tokenPresent && storedUser && ['admin', 'editor', 'user'].includes(storedUser.role)),
+    /* Делает: Вычисляет мемоизированное значение для компонента. Применение: передаётся как callback в useMemo внутри RepositoryWorkspaceAdd. */ () => Boolean(tokenPresent && storedUser && ['admin', 'editor', 'user'].includes(storedUser.role)),
     [storedUser, tokenPresent]
   );
 
-  useEffect(() => {
+  useEffect(/* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри RepositoryWorkspaceAdd. */ () => {
     if (loading || repositoryUser || !tokenPresent) {
       return;
     }
@@ -23,13 +24,13 @@ export default function RepositoryWorkspaceAdd() {
     let isActive = true;
     setRestoringAccess(true);
 
-    void refreshProfile().finally(() => {
+    void refreshProfile().finally(/* Делает: Выполняет завершающее действие после промиса. Применение: передаётся как callback в finally внутри useEffectCallback. */ () => {
       if (isActive) {
         setRestoringAccess(false);
       }
     });
 
-    return () => {
+    return /* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри useEffectCallback. */ () => {
       isActive = false;
     };
   }, [loading, repositoryUser, refreshProfile, tokenPresent]);

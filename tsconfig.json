@@ -1,9 +1,9 @@
-{
+﻿{
   "compilerOptions": {
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "allowJs": false,
+    "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -21,9 +21,18 @@
       "@pages/*": ["src/pages/*"],
       "@components/*": ["src/components/*"],
       "@styles/*": ["src/styles/*"],
-      "@assets/*": ["src/assets/*"]
+      "@assets/*": ["src/assets/*"],
+      "@gsras/*": ["src/gsras/*"],
+      "@gsras-pages/*": ["src/gsras/pages/*"],
+      "@gsras-components/*": ["src/gsras/components/*"],
+      "@gsras-styles/*": ["src/gsras/styles/*"],
+      "@gsras-assets/*": ["src/gsras/assets/*"],
+      "@gsras-hooks/*": ["src/gsras/hooks/*"],
+      "@gsras-services/*": ["src/gsras/services/*"],
+      "@gsras-utils/*": ["src/gsras/utils/*"]
     }
   },
   "include": ["src"],
   "references": []
 }
+

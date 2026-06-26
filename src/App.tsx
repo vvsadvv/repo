@@ -1,44 +1,53 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
-import Header from '@pages/Header/Header';
-import Footer from '@pages/Footer/Footer';
-import RepositoryPage from '@pages/RepositoryPage/RepositoryPage';
-import RepositoryLatestUploads from '@pages/RepositoryLatestUploads/RepositoryLatestUploads';
-import RepositorySearch from '@pages/RepositorySearch/RepositorySearch';
-import RepositoryAbout from '@pages/RepositoryAbout/RepositoryAbout';
-import RepositoryInstruction from '@pages/RepositoryInstruction/RepositoryInstruction';
-import RepositoryCabinet from '@pages/RepositoryCabinet/RepositoryCabinet';
-import RepositoryWorkspaceAdd from '@pages/RepositoryWorkspaceAdd/RepositoryWorkspaceAdd';
-import RepositoryWorkspaceEdit from '@pages/RepositoryWorkspaceEdit/RepositoryWorkspaceEdit';
-import RepositoryLogin from '@pages/RepositoryAuthorization/RepositoryLogin';
-import RepositoryRegistration from '@pages/RepositoryAuthorization/RepositoryRegistration';
-import RepositoryForgotPassword from '@pages/RepositoryAuthorization/RepositoryForgotPassword';
-import RepositoryResetPassword from '@pages/RepositoryAuthorization/RepositoryResetPassword';
-import RepositoryAdminPanel from '@pages/RepositoryAdminPanel/RepositoryAdminPanel';
-import '@pages/Authorization/Authorization.scss';
+import { Suspense, lazy } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 
+const RepositoryShell = lazy(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в lazy. */ () => import('@/repository/RepositoryShell'));
+const GsrasSiteEntry = lazy(/* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в lazy. */ () => import('@gsras/GsrasSiteEntry'));
+
+const LEGACY_GSRAS_PATH_PATTERNS = [
+  /^\/site(?:\/|$)/,
+  /^\/news(?:\/|$)/,
+  /^\/map(?:\/|$)/,
+  /^\/section(?:\/|$)/,
+  /^\/page(?:\/|$)/,
+  /^\/en(?:\/|$)/,
+];
+
+/* Делает: Рендерит React-компонент AppFallback и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
+function AppFallback() {
+  return <div className='page__container' />;
+}
+
+/* Делает: Получает legacy gsras redirect. Применение: используется локально в файле src/App.tsx. */
+function getLegacyGsrasRedirect(pathname: string, search = '', hash = '') {
+  if (pathname === '/') {
+    return null;
+  }
+
+  if (!LEGACY_GSRAS_PATH_PATTERNS.some(/* Делает: Проверяет наличие подходящего элемента в коллекции. Применение: передаётся как callback в some внутри getLegacyGsrasRedirect. */ (pattern) => pattern.test(pathname))) {
+    return null;
+  }
+
+  if (pathname === '/site') {
+    return `/gsras${search}${hash}`;
+  }
+
+  if (pathname.startsWith('/site/')) {
+    return `/gsras${pathname.slice('/site'.length)}${search}${hash}`;
+  }
+
+  return `/gsras${pathname}${search}${hash}`;
+}
+
+/* Делает: Рендерит React-компонент App и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 export default function App() {
+  const { pathname, search, hash } = useLocation();
+  const isGsrasRoute = pathname === '/gsras' || pathname.startsWith('/gsras/');
+  const legacyGsrasRedirect = getLegacyGsrasRedirect(pathname, search, hash);
+
   return (
-    <div className='page__container'>
-      <Header />
-      <Routes>
-        <Route path='/' element={<Navigate to='/repository/latest' replace />} />
-        <Route path='/repository' element={<Navigate to='/repository/latest' replace />} />
-        <Route path='/repository/latest' element={<RepositoryLatestUploads />} />
-        <Route path='/repository/search' element={<RepositorySearch />} />
-        <Route path='/repository/about' element={<RepositoryAbout />} />
-        <Route path='/repository/instruction' element={<RepositoryInstruction />} />
-        <Route path='/repository/cabinet' element={<RepositoryCabinet />} />
-        <Route path='/repository/add' element={<RepositoryWorkspaceAdd />} />
-        <Route path='/repository/edit' element={<RepositoryWorkspaceEdit />} />
-        <Route path='/repository/workspace' element={<RepositoryPage />} />
-        <Route path='/repository/login' element={<RepositoryLogin />} />
-        <Route path='/repository/registration' element={<RepositoryRegistration />} />
-        <Route path='/repository/forgot-password' element={<RepositoryForgotPassword />} />
-        <Route path='/repository/reset-password' element={<RepositoryResetPassword />} />
-        <Route path='/repository/admin' element={<RepositoryAdminPanel />} />
-        <Route path='*' element={<Navigate to='/repository/latest' replace />} />
-      </Routes>
-      <Footer />
-    </div>
+    <Suspense fallback={<AppFallback />}>
+      {legacyGsrasRedirect ? <Navigate to={legacyGsrasRedirect} replace /> : isGsrasRoute ? <GsrasSiteEntry /> : <RepositoryShell />}
+    </Suspense>
   );
 }

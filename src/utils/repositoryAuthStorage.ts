@@ -7,10 +7,12 @@ export const REPOSITORY_AUTH_INVALID_EVENT = 'repository-auth-invalid';
 
 let repositoryTokenMemory = '';
 
+/* Делает: Проверяет наличие window. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 function hasWindow() {
   return typeof window !== 'undefined';
 }
 
+/* Делает: Читает cookie репозиторного токена. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 function readRepositoryTokenCookie() {
   if (!hasWindow()) {
     return '';
@@ -18,8 +20,8 @@ function readRepositoryTokenCookie() {
 
   const cookie = window.document.cookie
     .split(';')
-    .map((entry) => entry.trim())
-    .find((entry) => entry.startsWith(`${REPOSITORY_TOKEN_COOKIE_KEY}=`));
+    .map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри readRepositoryTokenCookie. */ (entry) => entry.trim())
+    .find(/* Делает: Проверяет, подходит ли элемент под условие поиска. Применение: передаётся как callback в find внутри readRepositoryTokenCookie. */ (entry) => entry.startsWith(`${REPOSITORY_TOKEN_COOKIE_KEY}=`));
 
   if (!cookie) {
     return '';
@@ -34,6 +36,7 @@ function readRepositoryTokenCookie() {
   }
 }
 
+/* Делает: Записывает cookie репозиторного токена. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 function writeRepositoryTokenCookie(token: string) {
   if (!hasWindow()) {
     return;
@@ -43,6 +46,7 @@ function writeRepositoryTokenCookie(token: string) {
   window.document.cookie = `${REPOSITORY_TOKEN_COOKIE_KEY}=${encodeURIComponent(token)}; Path=/; SameSite=Lax${secureSuffix}`;
 }
 
+/* Делает: Очищает cookie репозиторного токена. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 function clearRepositoryTokenCookie() {
   if (!hasWindow()) {
     return;
@@ -52,6 +56,7 @@ function clearRepositoryTokenCookie() {
   window.document.cookie = `${REPOSITORY_TOKEN_COOKIE_KEY}=; Path=/; Max-Age=0; SameSite=Lax${secureSuffix}`;
 }
 
+/* Делает: Получает токен репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function getRepositoryToken() {
   if (hasWindow()) {
     const storedToken = window.localStorage.getItem(REPOSITORY_TOKEN_KEY);
@@ -72,6 +77,7 @@ export function getRepositoryToken() {
   return repositoryTokenMemory;
 }
 
+/* Делает: Выполняет токен set репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function setRepositoryToken(token: string) {
   repositoryTokenMemory = token;
   if (hasWindow()) {
@@ -80,6 +86,7 @@ export function setRepositoryToken(token: string) {
   }
 }
 
+/* Делает: Очищает токен репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function clearRepositoryToken() {
   repositoryTokenMemory = '';
   if (hasWindow()) {
@@ -88,6 +95,7 @@ export function clearRepositoryToken() {
   }
 }
 
+/* Делает: Получает пользователя сохранённого репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function getStoredRepositoryUser() {
   if (!hasWindow()) {
     return null;
@@ -105,22 +113,26 @@ export function getStoredRepositoryUser() {
   }
 }
 
+/* Делает: Выполняет пользователя set сохранённого репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function setStoredRepositoryUser(user: RepositoryUser) {
   if (hasWindow()) {
     window.localStorage.setItem(REPOSITORY_USER_KEY, JSON.stringify(user));
   }
 }
 
+/* Делает: Очищает пользователя сохранённого репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function clearStoredRepositoryUser() {
   if (hasWindow()) {
     window.localStorage.removeItem(REPOSITORY_USER_KEY);
   }
 }
 
+/* Делает: Проверяет наличие токен репозиторного. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function hasRepositoryToken() {
   return Boolean(getRepositoryToken().trim());
 }
 
+/* Делает: Отправляет уведомление repository auth invalid. Применение: используется локально в файле src/utils/repositoryAuthStorage.ts. */
 export function notifyRepositoryAuthInvalid(reason = 'unauthorized') {
   clearRepositoryToken();
   clearStoredRepositoryUser();

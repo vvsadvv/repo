@@ -85,6 +85,16 @@
       }
     }
 
+    &--secondary {
+      background: #fff;
+      border-color: #d59a28;
+      color: #815600;
+
+      &:hover {
+        background: #fff7e6;
+      }
+    }
+
     &--danger {
       background: linear-gradient(180deg, #de3b34 0%, #c92a24 100%);
       color: #fff;

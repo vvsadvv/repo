@@ -9,6 +9,7 @@ const backendDir = path.resolve(currentDir, '..');
 const testFilePattern = /\.(test|spec)\.js$/i;
 const ignoredDirs = new Set(['node_modules', 'dist']);
 
+/* Делает: Собирает файлы test. Применение: используется локально в файле backend/test/run-tests.js. */
 async function collectTestFiles(dirPath) {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const files = [];
@@ -35,8 +36,8 @@ async function collectTestFiles(dirPath) {
 }
 
 const testFiles = (await collectTestFiles(backendDir))
-  .filter((filePath) => filePath !== currentFilePath)
-  .sort((left, right) => left.localeCompare(right));
+  .filter(/* Делает: Проверяет, нужно ли оставить элемент в коллекции. Применение: передаётся как callback в filter. */ (filePath) => filePath !== currentFilePath)
+  .sort(/* Делает: Сравнивает элементы при сортировке. Применение: передаётся как callback в sort. */ (left, right) => left.localeCompare(right));
 
 if (testFiles.length === 0) {
   console.warn('No backend test files found.');

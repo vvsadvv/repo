@@ -1,0 +1,319 @@
+﻿@use '@gsras-styles/variables.scss';
+
+.news-archive {
+  padding: 28px 0 44px;
+
+  &__container {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__hero,
+  &__filters,
+  &__sidebar-panel,
+  &__entry-card,
+  &__year-section {
+    background: variables.$panel-surface;
+    border: 1px solid variables.$panel-border;
+    box-shadow: variables.$box-shadow-soft;
+  }
+
+  &__hero {
+    border-radius: 26px;
+    padding: 28px;
+  }
+
+  &__eyebrow {
+    display: inline-block;
+    margin-bottom: 10px;
+    color: #627d99;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  &__headline {
+    font-size: clamp(28px, 3.8vw, 46px);
+    line-height: 1.08;
+    color: #17324d;
+  }
+
+  &__lead {
+    margin-top: 14px;
+    color: #50657d;
+    line-height: 1.7;
+    max-width: 720px;
+  }
+
+  &__filters {
+    border-radius: 22px;
+    padding: 18px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+    gap: 14px;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    &--small {
+      align-self: end;
+    }
+  }
+
+  &__field-label {
+    color: #5f738a;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  &__input,
+  &__select {
+    min-height: 48px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(41, 81, 140, 0.14);
+    background: #ffffff;
+    color: #17324d;
+  }
+
+  &__layout {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+
+  &__sidebar {
+    position: sticky;
+    top: 18px;
+  }
+
+  &__sidebar-panel {
+    border-radius: 22px;
+    padding: 18px;
+  }
+
+  &__sidebar-title {
+    display: block;
+    margin-bottom: 12px;
+    color: #17324d;
+    font-weight: 700;
+  }
+
+  &__year-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__year-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    text-decoration: none;
+    background: rgba(41, 81, 140, 0.05);
+    color: #284867;
+
+    span {
+      color: #6d8198;
+      font-size: 13px;
+    }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  &__year-section {
+    border-radius: 24px;
+    padding: 20px;
+  }
+
+  &__year-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  &__year-title {
+    color: #17324d;
+    font-size: clamp(24px, 3vw, 34px);
+  }
+
+  &__year-count {
+    color: #6b8097;
+  }
+
+  &__entries {
+    display: grid;
+    gap: 16px;
+  }
+
+  &__entry-card {
+    border-radius: 22px;
+    padding: 18px;
+  }
+
+  &__entry-head {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__entry-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__entry-date {
+    color: variables.$main-color;
+    font-weight: 700;
+  }
+
+  &__entry-year {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(41, 81, 140, 0.08);
+    color: #6883a7;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  &__entry-title {
+    color: #17324d;
+    line-height: 1.35;
+  }
+
+  &__entry-image {
+    width: min(320px, 100%);
+    margin-top: 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(41, 81, 140, 0.1);
+    box-shadow: variables.$box-shadow-soft;
+  }
+
+  &__entry-excerpt {
+    margin-top: 14px;
+    color: #4d637b;
+    line-height: 1.7;
+  }
+
+  &__entry-actions {
+    margin-top: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  &__toggle,
+  &__source-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  &__toggle {
+    border: 1px solid #0c5da8;
+    background: #0c5da8;
+    color: #ffffff;
+    cursor: pointer;
+  }
+
+  &__source-link {
+    border: 1px solid rgba(12, 93, 168, 0.18);
+    background: #ffffff;
+    color: #0c5da8;
+  }
+
+  &__entry-content {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(41, 81, 140, 0.12);
+  }
+
+  &__state {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: #f2f7fd;
+    color: #243b53;
+
+    &--error {
+      background: #ffe9e9;
+      color: #8a1f1f;
+    }
+  }
+}
+
+@media (max-width: 1080px) {
+  .news-archive {
+    &__filters,
+    &__layout {
+      grid-template-columns: 1fr;
+    }
+
+    &__sidebar {
+      position: static;
+    }
+
+    &__year-links {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .news-archive {
+    padding: 20px 0 34px;
+
+    &__container {
+      padding: 0 14px;
+    }
+
+    &__hero,
+    &__filters,
+    &__year-section,
+    &__entry-card,
+    &__sidebar-panel {
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    &__year-head,
+    &__entry-actions {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__year-links {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    &__toggle {
+      width: 100%;
+    }
+  }
+}
+

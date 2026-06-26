@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 
+/* Делает: Рендерит React-компонент RepositoryForgotPassword и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
 export default function RepositoryForgotPassword() {
   const { forgotPassword } = useRepositoryAuth();
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function RepositoryForgotPassword() {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+    /* Делает: Обрабатывает submit. Применение: используется внутри функции RepositoryForgotPassword. */
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
@@ -44,7 +46,7 @@ export default function RepositoryForgotPassword() {
             className='login__form-input'
             placeholder='Введите email'
             value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            onChange={/* Делает: Обрабатывает событие onChange в JSX-разметке. Применение: используется как inline-обработчик onChange внутри файла src/pages/RepositoryAuthorization/RepositoryForgotPassword.tsx. */ (event) => setEmail(event.target.value)}
             disabled={isLoading}
             required
           />

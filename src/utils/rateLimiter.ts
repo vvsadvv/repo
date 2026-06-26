@@ -29,6 +29,7 @@ const MAX_TIMEOUT_SECONDS = 30 * 60;
 /**
  * Получить данные rate limit из localStorage
  */
+/* Делает: Получает данные ограничения частоты limit. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 function getRateLimitData(key: string): RateLimitData {
   const storageKey = STORAGE_KEY_PREFIX + key;
   const data = localStorage.getItem(storageKey);
@@ -55,6 +56,7 @@ function getRateLimitData(key: string): RateLimitData {
 /**
  * Сохранить данные rate limit в localStorage
  */
+/* Делает: Выполняет данные set ограничения частоты limit. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 function setRateLimitData(key: string, data: RateLimitData): void {
   const storageKey = STORAGE_KEY_PREFIX + key;
   localStorage.setItem(storageKey, JSON.stringify(data));
@@ -63,6 +65,7 @@ function setRateLimitData(key: string, data: RateLimitData): void {
 /**
  * Рассчитать время блокировки на основе количества превышений лимита
  */
+/* Делает: Выполняет calculate lockout time. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 function calculateLockoutTime(lockoutCount: number): number {
   // Прогрессивное увеличение: 30s, 60s, 120s, 240s... до 30 минут
   const timeout = BASE_TIMEOUT_SECONDS * Math.pow(TIMEOUT_MULTIPLIER, lockoutCount);
@@ -73,6 +76,7 @@ function calculateLockoutTime(lockoutCount: number): number {
  * Проверить, заблокирован ли пользователь
  * @returns оставшееся время блокировки в секундах или 0 если не заблокирован
  */
+/* Делает: Выполняет статус check ограничения частоты limit. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function checkRateLimitStatus(key: string): number {
   const data = getRateLimitData(key);
 
@@ -90,6 +94,7 @@ export function checkRateLimitStatus(key: string): number {
  * Записать неудачную попытку
  * @returns время блокировки в секундах если превышен лимит, иначе 0
  */
+/* Делает: Выполняет record failed attempt. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function recordFailedAttempt(key: string): number {
   const data = getRateLimitData(key);
   const now = Date.now();
@@ -121,6 +126,7 @@ export function recordFailedAttempt(key: string): number {
 /**
  * Сбросить счетчик попыток при успешном входе
  */
+/* Делает: Выполняет reset rate limit. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function resetRateLimit(key: string): void {
   const storageKey = STORAGE_KEY_PREFIX + key;
   localStorage.removeItem(storageKey);
@@ -129,6 +135,7 @@ export function resetRateLimit(key: string): void {
 /**
  * Получить количество оставшихся попыток
  */
+/* Делает: Получает remaining attempts. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function getRemainingAttempts(key: string): number {
   const data = getRateLimitData(key);
 
@@ -145,6 +152,7 @@ export function getRemainingAttempts(key: string): number {
 /**
  * Форматировать время в читаемый формат
  */
+/* Делает: Форматирует time remaining. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function formatTimeRemaining(seconds: number): string {
   if (seconds <= 0) return '';
 
@@ -173,6 +181,7 @@ export function formatTimeRemaining(seconds: number): string {
  * @param email email пользователя
  * @returns оставшееся время до следующей смены в секундах, или 0 если можно менять
  */
+/* Делает: Выполняет check password change limit. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function checkPasswordChangeLimit(email: string): number {
   const data = localStorage.getItem(PASSWORD_CHANGE_KEY);
 
@@ -182,7 +191,7 @@ export function checkPasswordChangeLimit(email: string): number {
 
   try {
     const history: PasswordChangeData[] = JSON.parse(data);
-    const userRecord = history.find(h => h.email.toLowerCase() === email.toLowerCase());
+    const userRecord = history.find(/* Делает: Проверяет, подходит ли элемент под условие поиска. Применение: передаётся как callback в find внутри checkPasswordChangeLimit. */ h => h.email.toLowerCase() === email.toLowerCase());
 
     if (!userRecord) {
       return 0;
@@ -205,6 +214,7 @@ export function checkPasswordChangeLimit(email: string): number {
 /**
  * Записать успешную смену пароля
  */
+/* Делает: Выполняет record password change. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function recordPasswordChange(email: string): void {
   const data = localStorage.getItem(PASSWORD_CHANGE_KEY);
   let history: PasswordChangeData[] = [];
@@ -218,7 +228,7 @@ export function recordPasswordChange(email: string): void {
   }
 
   // Удалить старую запись для этого email
-  history = history.filter(h => h.email.toLowerCase() !== email.toLowerCase());
+  history = history.filter(/* Делает: Проверяет, нужно ли оставить элемент в коллекции. Применение: передаётся как callback в filter внутри recordPasswordChange. */ h => h.email.toLowerCase() !== email.toLowerCase());
 
   // Добавить новую запись
   history.push({
@@ -229,7 +239,7 @@ export function recordPasswordChange(email: string): void {
   // Очистить записи старше 2 дней
   const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
   const now = Date.now();
-  history = history.filter(h => now - h.lastChange < TWO_DAYS);
+  history = history.filter(/* Делает: Проверяет, нужно ли оставить элемент в коллекции. Применение: передаётся как callback в filter внутри recordPasswordChange. */ h => now - h.lastChange < TWO_DAYS);
 
   localStorage.setItem(PASSWORD_CHANGE_KEY, JSON.stringify(history));
 }
@@ -237,6 +247,7 @@ export function recordPasswordChange(email: string): void {
 /**
  * Форматировать время до следующей смены пароля
  */
+/* Делает: Форматирует password change wait. Применение: используется локально в файле src/utils/rateLimiter.ts. */
 export function formatPasswordChangeWait(seconds: number): string {
   if (seconds <= 0) return '';
 

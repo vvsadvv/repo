@@ -15,6 +15,7 @@ const repositoryConfig = {
 
 const repositoryPool = new Pool(repositoryConfig);
 
+/* Делает: Проверяет наличие repository column. Применение: используется локально в файле backend/models/repositoryDatabase.js. */
 async function hasRepositoryColumn(client, columnName) {
   const { rows } = await client.query(
     `
@@ -31,6 +32,7 @@ async function hasRepositoryColumn(client, columnName) {
   return rows.length > 0;
 }
 
+/* Делает: Гарантирует repository database exists. Применение: используется локально в файле backend/models/repositoryDatabase.js. */
 async function ensureRepositoryDatabaseExists() {
   const adminPool = new Pool({
     user: repositoryConfig.user,
@@ -50,6 +52,7 @@ async function ensureRepositoryDatabaseExists() {
   }
 }
 
+/* Делает: Выполняет базу данных initialize репозиторного. Применение: используется локально в файле backend/models/repositoryDatabase.js. */
 async function initializeRepositoryDatabase() {
   await ensureRepositoryDatabaseExists();
 
@@ -58,10 +61,11 @@ async function initializeRepositoryDatabase() {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
       meta JSONB,
+      info JSONB NOT NULL DEFAULT '{}'::jsonb,
       document_type TEXT,
       doi TEXT,
       xml_path TEXT,
-      document_status VARCHAR(32) NOT NULL DEFAULT 'needs_revision',
+      document_status VARCHAR(32) NOT NULL DEFAULT 'draft',
       review_requested_at TIMESTAMP,
       verified_at TIMESTAMP,
       blocks JSONB,
@@ -70,27 +74,19 @@ async function initializeRepositoryDatabase() {
     );
   `);
 
+  await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS info JSONB NOT NULL DEFAULT '{}'::jsonb`);
+  await repositoryPool.query(`UPDATE repository_nodes SET info = '{}'::jsonb WHERE info IS NULL`);
+  await repositoryPool.query(`ALTER TABLE repository_nodes ALTER COLUMN info SET DEFAULT '{}'::jsonb`);
+  await repositoryPool.query(`ALTER TABLE repository_nodes ALTER COLUMN info SET NOT NULL`);
   await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS document_type TEXT`);
   await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS doi TEXT`);
   await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS xml_path TEXT`);
-  await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS document_status VARCHAR(32) NOT NULL DEFAULT 'needs_revision'`);
+  await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS document_status VARCHAR(32) NOT NULL DEFAULT 'draft'`);
+  await repositoryPool.query(`ALTER TABLE repository_nodes ALTER COLUMN document_status SET DEFAULT 'draft'`);
   await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS review_requested_at TIMESTAMP`);
   await repositoryPool.query(`ALTER TABLE repository_nodes ADD COLUMN IF NOT EXISTS verified_at TIMESTAMP`);
 
-  await repositoryPool.query(`
-    DO $$
-    BEGIN
-      IF NOT EXISTS (
-        SELECT 1
-        FROM pg_constraint
-        WHERE conname = 'repository_nodes_document_status_check'
-      ) THEN
-        ALTER TABLE repository_nodes
-        ADD CONSTRAINT repository_nodes_document_status_check
-        CHECK (document_status IN ('needs_revision', 'under_review', 'verified'));
-      END IF;
-    END $$;
-  `);
+  await repositoryPool.query(`ALTER TABLE repository_nodes DROP CONSTRAINT IF EXISTS repository_nodes_document_status_check`);
 
   const client = await repositoryPool.connect();
   try {
@@ -119,6 +115,27 @@ async function initializeRepositoryDatabase() {
 
     await client.query(`
       UPDATE repository_nodes
+      SET info = COALESCE(info, '{}'::jsonb) || jsonb_build_object(
+        'creatorName', COALESCE(NULLIF(info ->> 'creatorName', ''), meta ->> 'creatorName', ''),
+        'creatorEmail', COALESCE(NULLIF(info ->> 'creatorEmail', ''), meta ->> 'creatorEmail', ''),
+        'reviewEditorName', COALESCE(NULLIF(info ->> 'reviewEditorName', ''), meta ->> 'reviewEditorName', ''),
+        'reviewEditorEmail', COALESCE(NULLIF(info ->> 'reviewEditorEmail', ''), meta ->> 'reviewEditorEmail', ''),
+        'revisionComment', COALESCE(NULLIF(info ->> 'revisionComment', ''), meta ->> 'revisionComment', ''),
+        'revisionCommentAuthor', COALESCE(NULLIF(info ->> 'revisionCommentAuthor', ''), meta ->> 'revisionCommentAuthor', ''),
+        'revisionCommentUpdatedAt', COALESCE(NULLIF(info ->> 'revisionCommentUpdatedAt', ''), meta ->> 'revisionCommentUpdatedAt', '')
+      ),
+          meta = COALESCE(meta, '{}'::jsonb)
+            - 'creatorName'
+            - 'creatorEmail'
+            - 'reviewEditorName'
+            - 'reviewEditorEmail'
+            - 'revisionComment'
+            - 'revisionCommentAuthor'
+            - 'revisionCommentUpdatedAt'
+    `);
+
+    await client.query(`
+      UPDATE repository_nodes
       SET document_type = COALESCE(NULLIF(document_type, ''), meta ->> 'documentType', '')
     `);
 
@@ -135,9 +152,15 @@ async function initializeRepositoryDatabase() {
     await client.query(`
       UPDATE repository_nodes
       SET document_status = CASE
-        WHEN document_status IN ('needs_revision', 'under_review', 'verified') THEN document_status
-        ELSE 'needs_revision'
+        WHEN document_status IN ('draft', 'needs_revision', 'under_review', 'verified') THEN document_status
+        ELSE 'draft'
       END
+    `);
+
+    await client.query(`
+      ALTER TABLE repository_nodes
+      ADD CONSTRAINT repository_nodes_document_status_check
+      CHECK (document_status IN ('draft', 'needs_revision', 'under_review', 'verified'))
     `);
 
     await client.query(`DROP INDEX IF EXISTS repository_nodes_document_status_idx`);

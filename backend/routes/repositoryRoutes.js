@@ -10,14 +10,17 @@ import {
 const router = express.Router();
 
 router.get('/repository', optionalRepositoryAuthMiddleware, RepositoryController.getRepository);
+router.get('/repository/my-documents', repositoryAuthMiddleware, RepositoryController.getMyDocuments);
 router.post('/repository/directories', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.createDirectory);
 router.post('/repository/documents', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.createDocument);
 router.post('/repository/uploads', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.uploadAsset);
+router.delete('/repository/uploads', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.deleteUploadAsset);
 router.get('/repository/nodes/:id/draft', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.getPersonalDraft);
 router.put('/repository/nodes/:id/draft', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.savePersonalDraft);
 router.delete('/repository/nodes/:id/draft', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.deletePersonalDraft);
 router.post('/repository/nodes/:id/submit-review', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.submitDocumentForReview);
 router.post('/repository/nodes/:id/crossref-deposit', repositoryAuthMiddleware, repositoryAdminMiddleware, RepositoryController.depositXmlToCrossref);
+router.post('/repository/nodes/:id/crossref-confirm', repositoryAuthMiddleware, repositoryAdminMiddleware, RepositoryController.confirmCrossrefPublicationByEmail);
 router.put('/repository/nodes/:id', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.updateNode);
 router.delete('/repository/nodes/:id', repositoryAuthMiddleware, repositoryEditorMiddleware, RepositoryController.deleteNode);
 
