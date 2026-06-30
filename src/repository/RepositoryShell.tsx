@@ -14,7 +14,6 @@ import RepositoryRegistration from '@pages/RepositoryAuthorization/RepositoryReg
 import RepositoryForgotPassword from '@pages/RepositoryAuthorization/RepositoryForgotPassword';
 import RepositoryResetPassword from '@pages/RepositoryAuthorization/RepositoryResetPassword';
 import RepositoryAdminPanel from '@pages/RepositoryAdminPanel/RepositoryAdminPanel';
-import RepositoryGsrasAdminPanel from '@pages/RepositoryGsrasAdminPanel/RepositoryGsrasAdminPanel';
 import '@pages/Authorization/Authorization.scss';
 
 /* Делает: Рендерит React-компонент RepositoryShell и связывает его с состоянием и обработчиками модуля. Применение: экспортируется из модуля и используется UI-кодом проекта. */
@@ -37,7 +36,6 @@ export default function RepositoryShell() {
         <Route path='/repository/forgot-password' element={<RepositoryForgotPassword />} />
         <Route path='/repository/reset-password' element={<RepositoryResetPassword />} />
         <Route path='/repository/admin' element={<RepositoryAdminPanel />} />
-        <Route path='/repository/admin/gsras' element={<RepositoryGsrasAdminPanel />} />
         <Route path='*' element={<Navigate to='/repository/latest' replace />} />
       </Routes>
       <Footer />

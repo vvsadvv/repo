@@ -50,8 +50,18 @@
 }
 
 .repository-documents-table__col-authors {
-  width: 220px;
-  min-width: 220px;
+  width: 170px;
+  min-width: 170px;
+}
+
+.repository-documents-table__col-title {
+  width: auto;
+}
+
+.repository-documents-table__col-doi {
+  width: 250px;
+  min-width: 250px;
+  white-space: nowrap;
 }
 
 .repository-documents-table__row {

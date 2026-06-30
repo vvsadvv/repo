@@ -8,6 +8,8 @@ const DEFAULT_POP3_USER = 'skleminos';
 const DEFAULT_POLL_INTERVAL_MS = 60_000;
 const DEFAULT_POP3_TIMEOUT_MS = 15_000;
 const DEFAULT_MAX_MESSAGES_PER_POLL = 20;
+const DEFAULT_POP3_MESSAGE_RETENTION_DAYS = 14;
+const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 /* Делает: Разбирает positive integer env. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
 function parsePositiveIntegerEnv(value, fallback) {
@@ -51,6 +53,10 @@ function getCrossrefMailboxConfig() {
       DEFAULT_MAX_MESSAGES_PER_POLL
     ),
     deleteProcessed: process.env.CROSSREF_POP3_DELETE_PROCESSED === 'true',
+    messageRetentionDays: parsePositiveIntegerEnv(
+      process.env.CROSSREF_POP3_DELETE_OLDER_THAN_DAYS,
+      DEFAULT_POP3_MESSAGE_RETENTION_DAYS
+    ),
   };
 }
 
@@ -84,6 +90,20 @@ function buildMailboxActor(config) {
     fullName: 'Crossref POP3 watcher',
     email: config.user || DEFAULT_POP3_USER,
   };
+}
+
+/* Делает: Маскирует чувствительные POP3 команды в логах ошибок. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
+function redactPop3Command(command = '') {
+  const normalized = String(command || '').trim();
+  if (!normalized) {
+    return '';
+  }
+
+  if (/^PASS\s+/i.test(normalized)) {
+    return 'PASS [REDACTED]';
+  }
+
+  return normalized;
 }
 
 /* Делает: Разделяет headers and body. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
@@ -278,6 +298,19 @@ function parseRawEmail(rawMessage = '') {
   };
 }
 
+/* Делает: Разбирает дату email сообщения. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
+function parseRawEmailReceivedAt(rawMessage = '') {
+  const parsed = parseRawEmail(rawMessage);
+  const rawDateHeader = decodeMimeHeaderValue(parsed.headers.date || '');
+  const timestamp = Date.parse(String(rawDateHeader || '').trim());
+
+  if (!Number.isFinite(timestamp)) {
+    return null;
+  }
+
+  return new Date(timestamp);
+}
+
 /* Делает: Извлекает payload crossref XML. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
 function extractCrossrefXmlPayload(text = '') {
   const normalized = String(text || '');
@@ -352,6 +385,20 @@ function shouldSeedExistingMailboxMessages({
     Number(existingProcessedCount) === 0 &&
     Number(mailboxMessageCount) > 0
   );
+}
+
+/* Делает: Проверяет, старше ли письмо заданного retention. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
+function isMessageOlderThanDays(receivedAt, retentionDays, now = new Date()) {
+  if (!(receivedAt instanceof Date) || Number.isNaN(receivedAt.getTime())) {
+    return false;
+  }
+
+  const retentionMs = Number(retentionDays) * DAY_IN_MS;
+  if (!Number.isFinite(retentionMs) || retentionMs <= 0) {
+    return false;
+  }
+
+  return receivedAt.getTime() < now.getTime() - retentionMs;
 }
 
 /* Делает: Проверяет сообщение crossref подтверждающего. Применение: используется локально в файле backend/services/crossrefMailboxService.js. */
@@ -521,7 +568,7 @@ class Pop3Client {
     const response = await this.readResponse({ multiline });
 
     if (!response.startsWith('+OK')) {
-      throw new Error(`POP3 command failed (${command}): ${response.trim()}`);
+      throw new Error(`POP3 command failed (${redactPop3Command(command)}): ${response.trim()}`);
     }
 
     return response;
@@ -607,7 +654,7 @@ async function connectPop3Client(config) {
   throw new Error(`Не удалось подключиться к POP3. Попытки: ${errors.join(' | ')}`);
 }
 
-class CrossrefMailboxService {
+export class CrossrefMailboxService {
     /* Делает: Инициализирует экземпляр CrossrefMailboxService и подготавливает его начальное состояние. Применение: вызывается при создании экземпляра класса CrossrefMailboxService в этом модуле. */
   constructor() {
     this.pollTimer = null;
@@ -674,7 +721,7 @@ class CrossrefMailboxService {
 
     if (!this.pollTimer) {
       this.pollTimer = setInterval(/* Делает: Запускает периодическое действие по таймеру. Применение: передаётся как callback в setInterval внутри start. */ () => {
-        void this.pollNow();
+        this.schedulePoll();
       }, config.pollIntervalMs);
 
       if (typeof this.pollTimer.unref === 'function') {
@@ -683,9 +730,14 @@ class CrossrefMailboxService {
     }
 
     console.log(
-      `Crossref POP3 watcher is active (${config.host}:${config.port}, secure=${config.secure}, interval=${config.pollIntervalMs}ms)`
+      `Crossref POP3 watcher is scheduled to poll mailbox every ${config.pollIntervalMs}ms (${config.host}:${config.port}, secure=${config.secure})`
     );
-    await this.pollNow();
+    try {
+      await this.pollNow();
+    } catch (error) {
+      await this.stop();
+      throw error;
+    }
 
     return { started: true };
   }
@@ -770,11 +822,11 @@ class CrossrefMailboxService {
   }
 
     /* Делает: Выполняет сообщение process. Применение: используется внутри класса CrossrefMailboxService. */
-  async processMessage(client, message, config) {
-    const rawMessage = await client.retrieveMessage(message.number);
-    const extracted = extractCrossrefConfirmationPayload(rawMessage);
+  async processMessage(client, message, config, rawMessage = null) {
+    const messageContent = rawMessage === null ? await client.retrieveMessage(message.number) : String(rawMessage || '');
+    const extracted = extractCrossrefConfirmationPayload(messageContent);
 
-    if (!isCrossrefConfirmationMessage(extracted.subject, extracted.text, rawMessage)) {
+    if (!isCrossrefConfirmationMessage(extracted.subject, extracted.text, messageContent)) {
       await this.saveProcessedMessage({
         uid: message.uid,
         subject: extracted.subject,
@@ -843,6 +895,45 @@ class CrossrefMailboxService {
     }
   }
 
+    /* Делает: Удаляет письма старше retention и готовит к дальнейшему poll. Применение: используется внутри класса CrossrefMailboxService. */
+  async filterExpiredMessages(client, messages = [], config, now = new Date()) {
+    const activeMessages = [];
+    const rawMessagesByUid = new Map();
+    let deletedCount = 0;
+
+    for (const message of messages) {
+      let rawMessage = '';
+
+      try {
+        rawMessage = await client.retrieveMessage(message.number);
+      } catch (error) {
+        console.warn(`Crossref POP3 watcher could not inspect message ${message.uid}: ${error?.message || 'RETR_FAILED'}`);
+        activeMessages.push(message);
+        continue;
+      }
+
+      const receivedAt = parseRawEmailReceivedAt(rawMessage);
+      if (isMessageOlderThanDays(receivedAt, config.messageRetentionDays, now)) {
+        try {
+          await client.deleteMessage(message.number);
+          deletedCount += 1;
+          continue;
+        } catch (error) {
+          console.warn(`Crossref POP3 watcher could not delete expired message ${message.uid}: ${error?.message || 'DELE_FAILED'}`);
+        }
+      }
+
+      rawMessagesByUid.set(message.uid, rawMessage);
+      activeMessages.push(message);
+    }
+
+    return {
+      activeMessages,
+      rawMessagesByUid,
+      deletedCount,
+    };
+  }
+
     /* Делает: Выполняет почтовый ящик poll. Применение: используется внутри класса CrossrefMailboxService. */
   async pollMailbox() {
     const config = this.getConfig();
@@ -858,27 +949,34 @@ class CrossrefMailboxService {
     try {
       await client.login(config.user, config.password);
       const messages = await client.listUids();
+      const { activeMessages, rawMessagesByUid, deletedCount } = await this.filterExpiredMessages(client, messages, config);
+      if (deletedCount > 0) {
+        console.log(
+          `Crossref POP3 watcher deleted ${deletedCount} mailbox message(s) older than ${config.messageRetentionDays} day(s)`
+        );
+      }
+
       const processedMessageCount = await this.getProcessedMessageCount();
       if (shouldSeedExistingMailboxMessages({
         skipExistingOnStart: config.skipExistingOnStart,
         existingProcessedCount: processedMessageCount,
-        mailboxMessageCount: messages.length,
+        mailboxMessageCount: activeMessages.length,
       })) {
-        await this.seedExistingMessages(messages);
+        await this.seedExistingMessages(activeMessages);
         console.log(
-          `Crossref POP3 watcher seeded ${messages.length} existing mailbox message(s) on first start. New messages will be processed from now on.`
+          `Crossref POP3 watcher seeded ${activeMessages.length} existing mailbox message(s) on first start. New messages will be processed from now on.`
         );
         return;
       }
 
-      const processedUidSet = await this.getProcessedUidSet(messages.map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри pollMailbox. */ (message) => message.uid));
-      const pendingMessages = messages
+      const processedUidSet = await this.getProcessedUidSet(activeMessages.map(/* Делает: Преобразует элемент коллекции в новое значение. Применение: передаётся как callback в map внутри pollMailbox. */ (message) => message.uid));
+      const pendingMessages = activeMessages
         .filter(/* Делает: Проверяет, нужно ли оставить элемент в коллекции. Применение: передаётся как callback в filter внутри pollMailbox. */ (message) => !processedUidSet.has(message.uid))
         .sort(/* Делает: Сравнивает элементы при сортировке. Применение: передаётся как callback в sort внутри pollMailbox. */ (left, right) => left.number - right.number)
         .slice(0, config.maxMessagesPerPoll);
 
       for (const message of pendingMessages) {
-        await this.processMessage(client, message, config);
+        await this.processMessage(client, message, config, rawMessagesByUid.get(message.uid) ?? null);
       }
     } finally {
       await client.quit().catch(/* Делает: Обрабатывает ошибку предыдущего промиса. Применение: передаётся как callback в catch внутри pollMailbox. */ () => {});
@@ -895,6 +993,18 @@ class CrossrefMailboxService {
 
     return this.pollPromise;
   }
+
+    /* Делает: Логирует ошибку планового poll без падения процесса. Применение: используется внутри класса CrossrefMailboxService. */
+  logScheduledPollError(error) {
+    console.warn(`Crossref POP3 watcher poll failed: ${error?.message || 'UNKNOWN_ERROR'}`);
+  }
+
+    /* Делает: Запускает poll с безопасной обработкой фоновых ошибок. Применение: используется внутри класса CrossrefMailboxService. */
+  schedulePoll() {
+    void this.pollNow().catch(/* Делает: Обрабатывает ошибку poll без unhandled rejection. Применение: передаётся как callback в catch внутри schedulePoll. */ (error) => {
+      this.logScheduledPollError(error);
+    });
+  }
 }
 
 export const crossrefMailboxService = new CrossrefMailboxService();
@@ -907,5 +1017,6 @@ export const crossrefMailboxServiceTestUtils = {
   extractCrossrefXmlPayload,
   isCrossrefConfirmationMessage,
   parseRawEmail,
+  redactPop3Command,
   shouldSeedExistingMailboxMessages,
 };

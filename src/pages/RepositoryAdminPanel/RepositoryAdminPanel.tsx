@@ -640,11 +640,6 @@ export default function RepositoryAdminPanel() {
     <div className='admin-panel'>
       <div className='admin-panel__reference-card-header'>
         <h1>Админ-панель репозитория</h1>
-        <div className='user-actions'>
-          <Link to='/repository/admin/gsras' className='btn-approve'>
-            GS RAS контент
-          </Link>
-        </div>
       </div>
 
       {notification && (

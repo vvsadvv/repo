@@ -48,7 +48,7 @@ const repositoryRemoteDownloadTimeoutMs = parsePositiveIntegerEnv(
   15000
 );
 const DEFAULT_DOCUMENT_CLASSIFICATION = 'dataset';
-const DEFAULT_JOURNAL_CODE = 'upp';
+const DEFAULT_JOURNAL_CODE = 'pub';
 
 const DOCUMENT_STATUS_DRAFT = 'draft';
 const DOCUMENT_STATUS_NEEDS_REVISION = 'needs_revision';
@@ -293,6 +293,17 @@ function sanitizeFileName(fileName, mimeType = '') {
 /* Делает: Собирает document slug. Применение: используется локально в файле backend/services/repositoryService.js. */
 function buildDocumentSlug(value) {
   return slugifySegment(value || 'document', 'document').toLowerCase();
+}
+
+/* Делает: Определяет имя XML документа. Применение: используется локально в файле backend/services/repositoryService.js. */
+function resolveXmlDocumentName(meta = {}, fallbackName = '') {
+  const englishTitle = String(meta?.titleEn || '').trim();
+  if (englishTitle) {
+    return englishTitle;
+  }
+
+  const normalizedFallbackName = String(fallbackName || '').trim();
+  return normalizedFallbackName || 'document';
 }
 
 /* Делает: Определяет год хранилища. Применение: используется локально в файле backend/services/repositoryService.js. */
@@ -1203,7 +1214,7 @@ async function upsertGeneratedXml({ nodeId, name, meta, doi, existingXmlPath, cr
   const existingFilePath = existingXmlPath ? getManagedUploadFilePath(existingXmlPath) : null;
   const storage = resolveDocumentStorageInfo({
     documentId: nodeId,
-    documentName: name,
+    documentName: resolveXmlDocumentName(meta, name),
     publicationDate: meta?.publicationDate,
     createdAt,
   });
@@ -2975,7 +2986,7 @@ const REQUIRED_DOCUMENT_META_FIELD_LABELS = {
   organization: 'Аффилиации',
   organizationEn: 'Аффилиации (EN)',
   documentType: 'Тип документа',
-  titleEn: 'Название документа на английском языке',
+  titleEn: 'Название материалов на английском языке',
   journalCode: 'Наименование издания',
   volume: 'Том',
   articleNumber: 'Номер статьи',
@@ -4949,6 +4960,7 @@ export const repositoryServiceTestUtils = {
   findCrossrefConfirmationTargetByDoi,
   parseCrossrefConfirmationEmail,
   resolveEditableDocumentDoi,
+  resolveXmlDocumentName,
   resolveUniqueDoiCandidate,
   shouldRefreshEditableDocumentXml,
   synchronizeCitationLinks,

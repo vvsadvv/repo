@@ -1,6 +1,5 @@
 import express from 'express';
 import { RepositoryAdminController } from '../controllers/repositoryAdminController.js';
-import { GsrasAdminController } from '../controllers/gsrasAdminController.js';
 import { repositoryAdminMiddleware, repositoryAuthMiddleware } from '../middleware/repositoryAuthMiddleware.js';
 
 const router = express.Router();
@@ -28,10 +27,6 @@ router.delete('/authors/:id', RepositoryAdminController.deleteAuthor);
 router.get('/authors/pending', RepositoryAdminController.getPendingAuthors);
 router.post('/authors/:id/approve', RepositoryAdminController.approveAuthor);
 router.post('/authors/:id/reject', RepositoryAdminController.rejectAuthor);
-router.get('/gsras/storage', GsrasAdminController.getStorageOverview);
-router.get('/gsras/files', GsrasAdminController.listFiles);
-router.post('/gsras/files', GsrasAdminController.uploadFile);
-router.post('/gsras/sync-defaults', GsrasAdminController.syncDefaultFiles);
 router.post('/documents/:id/send-back', RepositoryAdminController.sendDocumentToRevision);
 router.put('/users/:id', RepositoryAdminController.updateUser);
 router.delete('/users/:id', RepositoryAdminController.deleteUser);

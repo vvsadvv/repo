@@ -143,8 +143,8 @@ export default function RepositoryDocumentsTable({
           <tr>
             <th className='repository-documents-table__col-date'>Дата размещения</th>
             <th className='repository-documents-table__col-authors'>Авторы</th>
-            <th>Название / Аннотация</th>
-            <th>DOI</th>
+            <th className='repository-documents-table__col-title'>Название / Аннотация</th>
+            <th className='repository-documents-table__col-doi'>DOI</th>
             {showStatus && <th>Статус</th>}
           </tr>
         </thead>
@@ -189,7 +189,7 @@ export default function RepositoryDocumentsTable({
                       )}
                     </div>
                   </td>
-                  <td>{formatDoi(document)}</td>
+                  <td className='repository-documents-table__col-doi'>{formatDoi(document)}</td>
                   {showStatus && (
                     <td>
                       <span className={`repository-documents-table__status repository-documents-table__status--${statusVariants[documentStatus]}`}>

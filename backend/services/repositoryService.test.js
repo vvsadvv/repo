@@ -84,6 +84,24 @@ test('repository citation is rebuilt with DOI', /* Делает: Выполня�
   );
 });
 
+test('xml file name prefers english title over russian document name', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
+  assert.equal(
+    repositoryServiceTestUtils.resolveXmlDocumentName(
+      { titleEn: 'North Caucasus Earthquake Catalog 2024' },
+      'Каталог землетрясений 2024'
+    ),
+    'North Caucasus Earthquake Catalog 2024'
+  );
+
+  assert.equal(
+    repositoryServiceTestUtils.resolveXmlDocumentName(
+      { titleEn: '   ' },
+      'Каталог землетрясений 2024'
+    ),
+    'Каталог землетрясений 2024'
+  );
+});
+
 test('editable document doi is recalculated from current metadata', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в test. */ () => {
   const staleMeta = {
     publicationDate: '2026-06-05',
@@ -100,7 +118,7 @@ test('editable document doi is recalculated from current metadata', /* Дела�
     ...staleMeta,
     journalCode: '',
   });
-  assert.equal(defaultJournalDoi, '10.35540/gsras.upp.2026.2.05');
+  assert.equal(defaultJournalDoi, '10.35540/gsras.pub.2026.2.05');
 
   const incompleteDoi = repositoryServiceTestUtils.resolveEditableDocumentDoi('doc-1', 'Документ', {
     ...staleMeta,

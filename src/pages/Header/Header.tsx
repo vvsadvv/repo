@@ -1,10 +1,6 @@
 ﻿import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import './Header.scss';
-import logo320 from '@assets/logo/header-logo-320.svg';
-import logo575 from '@assets/logo/header-logo-575.svg';
-import logo767 from '@assets/logo/header-logo-767.svg';
-import logo992 from '@assets/logo/header-logo-992.svg';
-import logo1600 from '@assets/logo/header-logo-1600.svg';
+import repositoryLogo from '@assets/logo/repository-logo-top.jpg';
 import { useRepositoryAuth } from '@/contexts/RepositoryAuthContext';
 
 /* Делает: Форматирует ФИО в вид фамилии с инициалами. Применение: используется локально в файле src/pages/Header/Header.tsx. */
@@ -58,25 +54,8 @@ function Header() {
       <div className='repository-header__container'>
         <div className='repository-header__logo-container'>
           <a className='repository-header__home-link' href='/'>
-            <picture className='repository-header__picture'>
-              <source srcSet={logo320} media='(max-width: 320px)' />
-              <source srcSet={logo575} media='(max-width: 575px)' />
-              <source srcSet={logo767} media='(max-width: 767px)' />
-              <source srcSet={logo992} media='(max-width: 992px)' />
-              <img src={logo1600} alt='ФИЦ ЕГС РАН' className='repository-header__logo' />
-            </picture>
+            <img src={repositoryLogo} alt='Репозиторий геофизических данных ФИЦ ЕГС РАН' className='repository-header__logo' />
           </a>
-          <Link to='/repository/latest' className='repository-header__repository-label'>
-            <span className='repository-header__repository-label-icon' aria-hidden='true'>
-              <svg width='20' height='20' viewBox='0 0 24 24' focusable='false'>
-                <path
-                  fill='currentColor'
-                  d='M3 6a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v1H3V6zm0 4h18l-1.2 7A2 2 0 0 1 17.83 19H6.17a2 2 0 0 1-1.97-1.66L3 10z'
-                />
-              </svg>
-            </span>
-            <span>Репозиторий геофизических данных</span>
-          </Link>
         </div>
 
         <div className='repository-header__nav-container'>
@@ -111,9 +90,6 @@ function Header() {
                   <>
                     <Link to='/repository/admin' className='repository-header__admin-link'>
                       Админ-панель репозитория
-                    </Link>
-                    <Link to='/repository/admin/gsras' className='repository-header__admin-link'>
-                      GS RAS контент
                     </Link>
                   </>
                 )}

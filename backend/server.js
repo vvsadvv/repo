@@ -12,7 +12,6 @@ import { initializeRepositoryDatabase } from './models/repositoryDatabase.js';
 import { repositoryService } from './services/repositoryService.js';
 import { getEmailService } from './services/emailService.js';
 import { crossrefMailboxService } from './services/crossrefMailboxService.js';
-import { gsrasContentService } from './services/gsrasContentService.js';
 
 const app = express();
 const PORT = Number(process.env.PORT || 3005);
@@ -43,27 +42,6 @@ app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 app.use('/uploads/repository/xml', express.static(repositoryXmlDir));
 app.use('/uploads', express.static(uploadsDir));
-app.use('/api/gsras/data', express.static(gsrasContentService.getPublicDirectories().dataDir));
-app.use('/api/gsras/site-assets', /* Делает: Выполняет локальный callback в текущем вызове. Применение: передаётся как callback в use. */ async (req, res, next) => {
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    return next();
-  }
-
-  const relativePath = String(req.path || '').replace(/^\/+/, '');
-
-  if (!relativePath) {
-    return next();
-  }
-
-  try {
-    await gsrasContentService.ensureSiteAssetAvailable(relativePath);
-  } catch (error) {
-    console.warn('GS RAS asset availability check failed:', error.message);
-  }
-
-  return next();
-});
-app.use('/api/gsras/site-assets', express.static(gsrasContentService.getPublicDirectories().siteAssetsDir));
 
 app.use('/api/repository-auth', repositoryAuthRoutes);
 app.use('/api/repository-admin', repositoryAdminRoutes);
@@ -99,7 +77,6 @@ async function startServer() {
     await initializeAuthDatabase();
     await initializeRepositoryDatabase();
     await repositoryService.migrateJsonRepositoryIfNeeded();
-    await gsrasContentService.ensureStorageReady();
 
     try {
       await getEmailService();

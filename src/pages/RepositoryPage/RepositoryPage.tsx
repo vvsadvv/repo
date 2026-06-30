@@ -73,7 +73,9 @@ function createDocumentDraftSignature({
 
 const DEFAULT_DOCUMENT_CLASSIFICATION = 'dataset';
 const DEFAULT_REPOSITORY_LICENSE = 'CC BY-NC 4.0';
-const DEFAULT_JOURNAL_CODE = 'upp';
+const DEFAULT_JOURNAL_CODE = 'pub';
+const REPOSITORY_LICENSE_LABEL = 'Лицензия: материалы опубликованы на условиях открытой лицензии для некоммерческого использования с указанием авторства';
+const AUTHOR_PUBLICATION_CONSENT_DOCUMENT_PATH = '/documents/repository-author-publication-consent.pdf';
 
 /* Делает: Создаёт блок пустого. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
 function createEmptyBlock(type: RepositoryBlockType, placement: 'content' | 'meta' = 'content'): RepositoryBlock {
@@ -244,7 +246,7 @@ function buildApproximateDoi(meta: Pick<RepositoryDocumentMeta, 'publicationDate
     return '';
   }
 
-  return `${DEFAULT_REPOSITORY_DOI_PREFIX}/gsras.${journalCode}.${publicationYear}.${volume}.${articleNumber}`;
+  return `${DEFAULT_REPOSITORY_DOI_PREFIX}/repo.${journalCode}.${publicationYear}.${volume}.${articleNumber}`;
 }
 
 /* Делает: Определяет DOI редактируемого документа. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
@@ -886,7 +888,7 @@ const DOCUMENT_CLASSIFICATION_OPTIONS = [
 ];
 
 const JOURNAL_CODE_OPTIONS = [
-  { value: DEFAULT_JOURNAL_CODE, label: 'Условное издание репозитория (upp)' },
+  { value: DEFAULT_JOURNAL_CODE, label: 'Выберите издание из списка' },
   { value: 'rjs', label: 'Российский сейсмологический журнал (rjs)' },
   { value: 'zse', label: 'Землетрясения Северной Евразии (zse)' },
   { value: 'er', label: 'Землетрясения России (er)' },
@@ -928,7 +930,7 @@ const REQUIRED_META_FIELD_LABELS: Record<RequiredMetaField, string> = {
   organization: 'Организация на русском языке',
   organizationEn: 'Организация на английском языке',
   documentType: 'Тип документа',
-  titleEn: 'Название документа на английском языке',
+  titleEn: 'Название материалов на английском языке',
   journalCode: 'Наименование издания',
   volume: 'Том',
   articleNumber: 'Номер статьи',
@@ -938,31 +940,28 @@ const REQUIRED_META_FIELD_LABELS: Record<RequiredMetaField, string> = {
 const CREATE_DOCUMENT_MINIMAL_FIELD_LABELS: Record<CreateDocumentMinimalField, string> = {
   publicationDate: 'Дата публикации',
   documentType: 'Тип документа',
-  titleRu: 'Название документа на русском языке',
-  titleEn: 'Название документа на английском языке',
+  titleRu: 'Название материалов на русском языке',
+  titleEn: 'Название материалов на английском языке',
 };
 
 const LICENSE_FIELD_HELP = (
   <>
-    Лицензия: материалы опубликованы на условиях открытой лицензии для некоммерческого использования с указанием
-    авторства{' '}
     <a href='https://creativecommons.org/licenses/by-nc/4.0/' target='_blank' rel='noreferrer'>
       Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
     </a>
-    .
   </>
 );
 
 const DOCUMENT_FIELD_HELP = {
   publicationDate: 'Дата, к которой относится публикация материала. Используется в карточке документа, DOI и XML Crossref.',
   documentType: 'Категория материала в репозитории: набор данных, база данных, статья, отчёт или другой тип.',
-  titleRu: 'Основное название документа на русском языке. Оно отображается в списках и карточке материала.',
-  titleEn: 'Английский вариант названия, необходимый для регистрации DOI и международного описания материала.',
-  authors: 'Авторы материала. Для каждого автора указываются русское и английское имя и организация.',
+  titleRu: 'Основное название материалов на русском языке. Оно отображается в списках и карточке материала.',
+  titleEn: 'Английский вариант названия материалов, необходимый для регистрации DOI и международного описания материала.',
+  authors: 'Авторы материала. Для каждого автора указываются ФИО на русском и английском языках, а также организация.',
   authorReference: 'Позволяет выбрать уже зарегистрированного автора и автоматически заполнить его данные.',
   organizationReference: 'Позволяет выбрать организацию из справочника и автоматически заполнить её названия.',
-  authorRu: 'Фамилия, имя и отчество автора на русском языке.',
-  authorEn: 'Фамилия Имя Отчество на английском языке.',
+  authorRu: 'ФИО автора на русском языке.',
+  authorEn: 'ФИО автора на английском языке.',
   organizationRu: 'Краткое русское название организации автора, например ФИЦ ЕГС РАН.',
   organizationEn: 'Краткое английское название организации автора, например GS RAS.',
   organizationFullRu: 'Официальное полное наименование организации на русском языке.',
@@ -974,7 +973,7 @@ const DOCUMENT_FIELD_HELP = {
   fileUpload: 'Выберите файл на компьютере. Он будет загружен на сервер после сохранения документа.',
   fileTitle: 'Понятное название файла, которое увидит пользователь в карточке документа.',
   fileSource: 'Прямая ссылка на файл, если он хранится во внешнем источнике и не загружается с компьютера.',
-  journal: 'Издание или серия, в которой регистрируется материал.',
+  journal: 'Издание или серия, в которой регистрируется материал. Если издание не выбрано, для формирования DOI используется код pub.',
   publicationYear: 'Год выпуска издания. По умолчанию подставляется из даты публикации, но его можно изменить вручную.',
   volume: 'Номер тома издания. Используется при формировании DOI и XML Crossref.',
   articleNumber: 'Порядковый номер материала в томе. Используется при формировании DOI.',
@@ -1213,6 +1212,13 @@ function getFileNameStem(value?: string) {
   return fileName.replace(/\.[^.]+$/u, '').trim();
 }
 
+/* Делает: Получает расширение имени файла. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
+function getFileNameExtension(value?: string) {
+  const fileName = getFileNameFromPath(value);
+  const match = fileName.match(/\.([^.]+)$/u);
+  return match?.[1]?.trim().toLowerCase() || '';
+}
+
 /* Делает: Определяет имя прикреплённого файлового display. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
 function resolveAttachedFileDisplayName(block: RepositoryBlock) {
   return (
@@ -1220,6 +1226,27 @@ function resolveAttachedFileDisplayName(block: RepositoryBlock) {
     getFileNameFromPath(getEffectiveFileSourceUrl(block)) ||
     (hasManagedFile(block) ? getFileNameFromPath(block.url) : '')
   );
+}
+
+/* Делает: Собирает отображаемое имя файла с расширением. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
+function resolveDisplayFileName(block: RepositoryBlock, fallback = 'Файл') {
+  const label = String(block.label || '').trim();
+  const attachedFileName = resolveAttachedFileDisplayName(block);
+
+  if (label) {
+    if (getFileNameExtension(label)) {
+      return label;
+    }
+
+    const extension =
+      getFileNameExtension(attachedFileName) ||
+      getFileNameExtension(getEffectiveFileSourceUrl(block)) ||
+      (hasManagedFile(block) ? getFileNameExtension(block.url) : '');
+
+    return extension ? `${label}.${extension}` : label;
+  }
+
+  return attachedFileName || fallback;
 }
 
 /* Делает: Проверяет наличие файл управляемого. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
@@ -1240,18 +1267,6 @@ function normalizeEditableFileLabel(value: string, block: RepositoryBlock) {
   }
 
   return normalized.replace(/\.[A-Za-z0-9]{1,10}$/u, '');
-}
-
-/* Делает: Определяет file format. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
-function resolveFileFormat(block: RepositoryBlock) {
-  const fileNameSource = block.fileName || block.label || block.sourceUrl || block.url || '';
-  const cleanSource = String(fileNameSource).split(/[?#]/, 1)[0];
-  const extension = cleanSource.includes('.') ? cleanSource.split('.').pop()?.trim().toUpperCase() : '';
-  if (extension) {
-    return extension;
-  }
-
-  return block.mimeType ? String(block.mimeType).toUpperCase() : 'Формат не указан';
 }
 
 /* Делает: Получает блоки документа файлового. Применение: используется локально в файле src/pages/RepositoryPage/RepositoryPage.tsx. */
@@ -1631,7 +1646,7 @@ function renderBlock(block: RepositoryBlock, searchQuery = '') {
         rel='noreferrer'
         download={block.fileName || block.label || 'file'}
       >
-        {highlightText(block.label || block.url || 'Файл', searchQuery)}
+        {highlightText(resolveDisplayFileName(block, block.url || 'Файл'), searchQuery)}
       </a>
     </p>
   );
@@ -1772,9 +1787,9 @@ function renderDocumentMeta({
                   rel='noreferrer'
                   download={block.fileName || block.label || 'file'}
                 >
-                  <strong>{highlightText(block.label || block.fileName || 'Файл', searchQuery)}</strong>
+                  <strong>{highlightText(resolveDisplayFileName(block), searchQuery)}</strong>
                   <span className='repository-page__file-meta'>
-                    {resolveFileFormat(block)} · {formatFileSize(block.fileSize)}
+                    {formatFileSize(block.fileSize)}
                   </span>
                 </a>
               ))}
@@ -1800,8 +1815,8 @@ function renderDocumentMeta({
           </p>
         </div>
         <div className='repository-page__meta-item'>
-          <h3>Лицензия</h3>
-          <p>{highlightText(meta.license || 'Не указана', searchQuery)}</p>
+          <h3><DocumentFieldLabel label={REPOSITORY_LICENSE_LABEL} helpKey='license' /></h3>
+          <p>{highlightText(normalizeRepositoryLicense(meta.license), searchQuery)}</p>
         </div>
       </section>
 
@@ -1824,7 +1839,7 @@ function renderDocumentMeta({
             <p>{highlightText(meta.descriptionEn || 'Not specified', searchQuery)}</p>
           </div>
           <div className='repository-page__meta-item'>
-            <h3>Citation</h3>
+            <h3>Ссылка для цитирования на английском языке</h3>
             <p>{highlightText(citationTextEn || 'Will be generated after DOI assignment.', searchQuery)}</p>
           </div>
         </div>
@@ -1932,6 +1947,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
   const [documentDraftTrackingReady, setDocumentDraftTrackingReady] = useState(false);
   const navigationGuardBypassRef = useRef(false);
   const [shownUiNoticeKey, setShownUiNoticeKey] = useState('');
+  const [publicationConsentConfirmed, setPublicationConsentConfirmed] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [actionModal, setActionModal] = useState<null | {
     title: string;
@@ -2396,6 +2412,10 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
     };
   }, [selectedNode, isAddWorkspace, canEditSelectedDocument]);
 
+  useEffect(/* Делает: Сбрасывает подтверждение публикации при смене выбранного документа. Применение: используется внутри функции RepositoryPage. */ () => {
+    setPublicationConsentConfirmed(false);
+  }, [selectedNode?.id]);
+
   useEffect(/* Делает: Выполняет побочный эффект и синхронизирует состояние компонента. Применение: передаётся как callback в useEffect внутри RepositoryPage. */ () => {
     if (!repository || !selectedId) {
       return;
@@ -2588,17 +2608,6 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
     /* Делает: Определяет имя блока прикреплённого файлового display. Применение: используется внутри функции RepositoryPage. */
   const resolveBlockAttachedFileDisplayName = (block: RepositoryBlock) =>
     getPendingBlockUpload(block.id)?.file.name || resolveAttachedFileDisplayName(block);
-    /* Делает: Определяет block file format. Применение: используется внутри функции RepositoryPage. */
-  const resolveBlockFileFormat = (block: RepositoryBlock) => {
-    const pendingFile = getPendingBlockUpload(block.id)?.file;
-    return pendingFile
-      ? resolveFileFormat({
-          ...block,
-          fileName: pendingFile.name,
-          mimeType: pendingFile.type || block.mimeType,
-        })
-      : resolveFileFormat(block);
-  };
     /* Делает: Определяет block file size. Применение: используется внутри функции RepositoryPage. */
   const resolveBlockFileSize = (block: RepositoryBlock) => getPendingBlockUpload(block.id)?.file.size ?? block.fileSize;
     /* Делает: Проверяет file source input disabled. Применение: используется внутри функции RepositoryPage. */
@@ -3373,6 +3382,16 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
         title: 'Документ уже принят',
         message: 'Документ уже проверен администратором и повторная отправка не требуется.',
         variant: 'info',
+        confirmText: 'Понятно',
+      });
+      return;
+    }
+
+    if (!publicationConsentConfirmed) {
+      setMessageModal({
+        title: 'Требуется подтверждение',
+        message: 'Перед отправкой на регистрацию подтвердите, что получены согласия от всех авторов на публикацию размещаемых материалов.',
+        variant: 'warning',
         confirmText: 'Понятно',
       });
       return;
@@ -4197,11 +4216,6 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           onChange={/* Делает: Обрабатывает событие onChange в JSX-разметке. Применение: используется как inline-обработчик onChange внутри файла src/pages/RepositoryPage/RepositoryPage.tsx. */ (event) => updateMetaField('publicationDate', event.target.value)}
         />
       </label>
-      <div className='repository-page__block-meta'>
-        <div className='repository-page__block-heading'>
-          <strong>Обязательные сведения</strong>
-        </div>
-      </div>
       <div className='repository-page__meta-grid'>
         <label className='repository-page__field--wide'>
           <DocumentFieldLabel label='Тип документа *' helpKey='documentType' />
@@ -4218,7 +4232,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           </select>
         </label>
         <label className='repository-page__field--wide'>
-          <DocumentFieldLabel label='Название документа на русском языке *' helpKey='titleRu' />
+          <DocumentFieldLabel label='Название материалов на русском языке *' helpKey='titleRu' />
           <input
             className='repository-page__input'
             value={draftName}
@@ -4226,7 +4240,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           />
         </label>
         <label className='repository-page__field--wide'>
-          <DocumentFieldLabel label='Название документа на английском языке *' helpKey='titleEn' />
+          <DocumentFieldLabel label='Название материалов на английском языке *' helpKey='titleEn' />
           <input
             className='repository-page__input'
             value={draftMeta.titleEn}
@@ -4254,7 +4268,6 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                   </div>
                   <div className='repository-page__author-columns'>
                     <div className='repository-page__author-column'>
-                      <h5>Автор</h5>
                       <label>
                         <DocumentFieldLabel label='Автор из справочника' helpKey='authorReference' />
                         <SearchableSelect
@@ -4268,7 +4281,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                         />
                       </label>
                       <label>
-                        <DocumentFieldLabel label='Автор на русском языке *' helpKey='authorRu' />
+                        <DocumentFieldLabel label='ФИО автора на русском языке *' helpKey='authorRu' />
                         <input
                           className='repository-page__input'
                           value={entry.authorRu}
@@ -4277,7 +4290,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                         />
                       </label>
                       <label>
-                        <DocumentFieldLabel label='Автор на английском языке *' helpKey='authorEn' />
+                        <DocumentFieldLabel label='ФИО автора на английском языке *' helpKey='authorEn' />
                         <input
                           className='repository-page__input'
                           value={entry.authorEn}
@@ -4292,7 +4305,6 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                       </div>
                     </div>
                     <div className='repository-page__author-column'>
-                      <h5>Организация</h5>
                       <label>
                         <DocumentFieldLabel label='Организация из справочника' helpKey='organizationReference' />
                         <SearchableSelect
@@ -4366,7 +4378,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           />
         </label>
         <label>
-          <DocumentFieldLabel label='Annotation *' helpKey='descriptionEn' />
+          <DocumentFieldLabel label='Аннотация на английском языке' helpKey='descriptionEn' />
           <textarea
             className='repository-page__textarea'
             rows={4}
@@ -4427,7 +4439,6 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                   </label>
                   <div className='repository-page__meta-file-card-meta'>
                     <span>Имя: {resolveBlockAttachedFileDisplayName(block) || 'Не прикреплен'}</span>
-                    <span>Формат: {resolveBlockFileFormat(block)}</span>
                     <span>Размер: {formatFileSize(resolveBlockFileSize(block), 'Не указан')}</span>
                   </div>
                 </div>
@@ -4436,7 +4447,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           ) : null}
         </div>
         <label>
-          <DocumentFieldLabel label='Наименование издания *' helpKey='journal' />
+          <DocumentFieldLabel label='Наименование издания' helpKey='journal' />
           <select
             className='repository-page__input'
             value={draftMeta.journalCode}
@@ -4460,7 +4471,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
             />
           </label>
           <label>
-            <DocumentFieldLabel label='Том *' helpKey='volume' />
+            <DocumentFieldLabel label='Том' helpKey='volume' />
             <input
               className='repository-page__input'
               value={draftMeta.volume}
@@ -4469,7 +4480,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
             />
           </label>
           <label>
-            <DocumentFieldLabel label='Номер статьи *' helpKey='articleNumber' />
+            <DocumentFieldLabel label='Номер статьи' helpKey='articleNumber' />
             <input
               className='repository-page__input'
               value={draftMeta.articleNumber}
@@ -4495,7 +4506,7 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
           />
         </label>
         <label className='repository-page__field--wide'>
-          <DocumentFieldLabel label='Citation' helpKey='citationEn' />
+          <DocumentFieldLabel label='Ссылка для цитирования на английском языке' helpKey='citationEn' />
           <textarea
             className='repository-page__textarea'
             rows={4}
@@ -4522,8 +4533,8 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
             <div className='repository-page__static-value'>Сформируется после отправки на регистрацию</div>
           )}
         </label>
-        <label>
-          <DocumentFieldLabel label='Лицензия *' helpKey='license' />
+        <label className='repository-page__field--wide repository-page__license-field'>
+          <DocumentFieldLabel label={`${REPOSITORY_LICENSE_LABEL} *`} helpKey='license' />
           <div className='repository-page__static-value'>
             {normalizeRepositoryLicense(draftMeta.license)}
           </div>
@@ -4818,9 +4829,12 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                       <div className='repository-page__card-header'>
                         <div className='repository-page__document-summary'>
                           <div className='repository-page__document-summary-main'>
-                            <span className='repository-page__document-summary-type'>
-                              {highlightText(selectedDocumentTypeLabel, searchQuery)}
-                            </span>
+                            <div className='repository-page__document-summary-type'>
+                              <DocumentFieldLabel label='Тип документа' helpKey='documentType' />
+                              <span className='repository-page__document-summary-type-value'>
+                                {highlightText(selectedDocumentTypeLabel, searchQuery)}
+                              </span>
+                            </div>
                             <span className='repository-page__document-summary-doi'>
                               DOI: {highlightText(selectedDocumentDoiLabel, searchQuery)}
                             </span>
@@ -4866,6 +4880,34 @@ function RepositoryPage({ workspaceMode = 'full' }: RepositoryPageProps) {
                             >
                               Как создать документ
                             </button>
+                          )}
+
+                          {selectedNode.type === 'document' && canSubmitSelectedDocumentForReview && (
+                            <div className='repository-page__submit-consent'>
+                              <label className='repository-page__submit-consent-label' htmlFor='repository-publication-consent'>
+                                <input
+                                  id='repository-publication-consent'
+                                  type='checkbox'
+                                  className='repository-page__submit-consent-checkbox'
+                                  checked={publicationConsentConfirmed}
+                                  onChange={/* Делает: Обрабатывает событие onChange в JSX-разметке. Применение: используется как inline-обработчик onChange внутри файла src/pages/RepositoryPage/RepositoryPage.tsx. */ (event) => setPublicationConsentConfirmed(event.target.checked)}
+                                  disabled={saving}
+                                />
+                                <span>
+                                  <a
+                                    href={AUTHOR_PUBLICATION_CONSENT_DOCUMENT_PATH}
+                                    target='_blank'
+                                    rel='noreferrer'
+                                    className='repository-page__submit-consent-link'
+                                    onClick={/* Делает: Обрабатывает событие onClick в JSX-разметке. Применение: используется как inline-обработчик onClick внутри файла src/pages/RepositoryPage/RepositoryPage.tsx. */ (event) => {
+                                      event.stopPropagation();
+                                    }}
+                                  >
+                                    Я подтверждаю, что мною получены согласия от всех авторов на публикацию размещаемых материалов.
+                                  </a>
+                                </span>
+                              </label>
+                            </div>
                           )}
 
                           <div className='repository-page__actions'>
